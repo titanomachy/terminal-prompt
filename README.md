@@ -4,13 +4,14 @@ Pure-Nim contracts for synchronous text, password, confirmation, single-select,
 and multi-select prompts.
 
 > [!IMPORTANT]
-> Milestone 0 defines and tests the API contracts and backend adapters. The
-> interactive prompt engines are not implemented yet; calling an `ask*` proc
-> currently raises `PromptNotImplementedError`.
+> Milestones 0 and 1 define and test the API contracts, safe session/input
+> engine, line-mode fallback, and cursor-safe display lifecycle. The concrete
+> prompt editors are not implemented yet; calling an `ask*` proc currently
+> raises `PromptNotImplementedError`.
 
 ## Status
 
-Milestone 0 is complete. It establishes:
+Milestones 0 and 1 are complete. They establish:
 
 - explicit answered, cancelled, and end-of-input results;
 - options-based and convenience prompt signatures;
@@ -19,11 +20,17 @@ Milestone 0 is complete. It establishes:
   [TerminalScreen](https://github.com/titanomachy/terminal-screen);
 - semantic themes backed directly by
   [TerminalStyle](https://github.com/titanomachy/terminal-style);
-- compile-checked public API examples and deterministic contract tests.
+- compile-checked public API examples and deterministic contract tests;
+- automatic plain line-mode fallback for redirected or limited terminals;
+- binding-aware normalized input for editing, navigation, cancellation, EOF,
+  timeout, and resize events;
+- cell-aware in-place redraw with exception-safe display/session cleanup;
+- reusable scripted I/O capture and POSIX PTY lifecycle coverage.
 
 See [the contract documentation](docs/contracts.md) for the exception policy
-and internal boundaries. The remaining work is tracked in
-[the implementation plan](PLANS/PLAN1.md).
+and internal boundaries, and [the runtime documentation](docs/runtime.md) for
+session modes, input actions, and redraw behavior. The remaining work is
+tracked in [the implementation plan](PLANS/PLAN1.md).
 
 ## Installation
 
@@ -49,7 +56,7 @@ During suite development, sibling checkouts can instead be linked with
 ## Public API direction
 
 The signatures below are compile-checked by `nimble examples`. They document
-the API being implemented in Milestones 1 through 3.
+the API being implemented in Milestones 2 and 3.
 
 ```nim
 import terminal_prompt

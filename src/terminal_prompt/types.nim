@@ -216,7 +216,8 @@ proc defaultPromptKeyBindings*(): PromptKeyBindings =
   ## Returns conventional prompt editing and navigation bindings.
   PromptKeyBindings(
     submit: @[keyBinding(keyEnter)],
-    cancel: @[keyBinding(keyEscape), keyBinding(keyCtrlC)],
+    cancel: @[keyBinding(keyEscape),
+      keyBinding(keyCtrlC, modifiers = {modifierCtrl})],
     moveUp: @[keyBinding(keyArrowUp)],
     moveDown: @[keyBinding(keyArrowDown)],
     moveLeft: @[keyBinding(keyArrowLeft)],
@@ -225,7 +226,7 @@ proc defaultPromptKeyBindings*(): PromptKeyBindings =
     moveLast: @[keyBinding(keyEnd)],
     deleteBackward: @[keyBinding(keyBackspace)],
     deleteForward: @[keyBinding(keyDelete)],
-    toggle: @[keyBinding(keySpace)]
+    toggle: @[keyBinding(keySpace, text = " ")]
   )
 
 proc defaultRuntimeOptions*(input: File = stdin; output: File = stdout;

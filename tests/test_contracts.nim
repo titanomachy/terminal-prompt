@@ -6,33 +6,7 @@ import terminal_style
 import terminal_prompt
 import terminal_prompt/[io, keys, render, session, terminal_screen_adapter]
 
-type ScriptedSession = ref object of PromptSession
-  events: seq[PromptInputEvent]
-  nextEvent: int
-  output: string
-  flushCount: int
-  closeCount: int
-
-method readEvent(value: ScriptedSession; timeoutMs = -1): PromptInputEvent =
-  if value.nextEvent >= value.events.len:
-    return endInput()
-  result = value.events[value.nextEvent]
-  inc value.nextEvent
-
-method write(value: ScriptedSession; text: string) =
-  value.output.add text
-
-method flush(value: ScriptedSession) =
-  inc value.flushCount
-
-method capabilities(value: ScriptedSession): PromptCapabilities =
-  PromptCapabilities(inputIsTerminal: false, outputIsTerminal: false)
-
-method terminalSize(value: ScriptedSession): Option[PromptSize] =
-  none(PromptSize)
-
-method close(value: ScriptedSession) =
-  inc value.closeCount
+import ./support/scripted_session
 
 suite "PromptResult contract":
   test "answered, cancelled, and EOF are distinct normal outcomes":
@@ -57,7 +31,7 @@ suite "PromptResult contract":
 
 suite "Injectable contracts":
   test "scripted I/O does not access process-global streams":
-    let scripted = ScriptedSession(events: @[
+    let scripted = newScriptedSession(@[
       keys.keyInput(keys.keyText, text = "x"),
       keys.keyInput(keys.keyEnter)
     ])
@@ -69,7 +43,7 @@ suite "Injectable contracts":
     check scripted.flushCount == 1
 
   test "session cleanup runs after an exception":
-    let scripted = ScriptedSession()
+    let scripted = newScriptedSession()
     var caught = false
     try:
       withPromptSession(PromptSession(scripted)):

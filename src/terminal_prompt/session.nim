@@ -5,6 +5,11 @@ import std/options
 import ./[io, keys, types]
 
 type
+  PromptSessionMode* = enum
+    ## Rendering/input strategy selected for a prompt session.
+    promptInteractiveMode
+    promptLineMode
+
   PromptAnsiMode* = enum
     ## Controls ANSI output independently of backend capability detection.
     promptAnsiAuto
@@ -33,10 +38,26 @@ type
     ## Prompt I/O with capabilities, geometry, and guaranteed cleanup.
 
 proc defaultPromptSessionOptions*(): PromptSessionOptions =
-  ## Returns safe interactive session defaults.
+  ## Returns safe defaults that fall back when streams are not interactive.
   PromptSessionOptions(rawMode: true, hideCursor: false,
-    requireTerminal: true, monitorResize: true, ansiMode: promptAnsiAuto,
+    requireTerminal: false, monitorResize: true, ansiMode: promptAnsiAuto,
     escapeTimeoutMs: 30, resizePollMs: 50)
+
+proc selectSessionMode*(capabilities: PromptCapabilities;
+                        options = defaultPromptSessionOptions()
+                       ): PromptSessionMode =
+  ## Selects interactive mode only when safe in-place input and output exist.
+  if options.rawMode and capabilities.inputIsTerminal and
+      capabilities.outputIsTerminal and capabilities.supportsRawMode and
+      capabilities.supportsAnsi:
+    promptInteractiveMode
+  else:
+    promptLineMode
+
+method mode*(session: PromptSession): PromptSessionMode {.base.} =
+  ## Returns the input/rendering strategy selected when the session opened.
+  raise newException(PromptStateError,
+    "mode is not implemented by this PromptSession")
 
 method capabilities*(session: PromptSession): PromptCapabilities {.base.} =
   ## Returns capabilities captured when this session opened.

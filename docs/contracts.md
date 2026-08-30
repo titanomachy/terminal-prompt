@@ -1,7 +1,8 @@
 # TerminalPrompt contracts
 
-This document records the Milestone 0 decisions that later prompt engines must
-preserve.
+This document records the contract decisions that later prompt engines must
+preserve. The Milestone 1 runtime behavior is described in
+[runtime.md](runtime.md).
 
 ## Result and exception policy
 
@@ -43,6 +44,8 @@ The implementation contracts are split by responsibility:
 - `session.nim` adds capabilities, terminal geometry, and idempotent cleanup;
 - `render.nim` converts semantic prompt segments into strings without touching
   a stream;
+- `input_engine.nim` resolves normalized keys against prompt action bindings;
+- `display.nim` owns transient redraw and output-position cleanup;
 - `terminal_screen_adapter.nim` maps TerminalScreen types onto those internal
   contracts.
 
@@ -56,7 +59,8 @@ scripted session and captured output. They must not read process-global
 exceptional exits. Implementations of `close` must be idempotent. The
 TerminalScreen adapter delegates raw-mode and cursor restoration to
 TerminalScreen's exception-safe session guard and converts backend failures to
-`PromptIOError`.
+`PromptIOError`. The adapter records whether the opened session selected
+interactive or line mode so later engines do not repeat capability decisions.
 
 ## Theme mapping
 
@@ -79,7 +83,9 @@ Bindings describe prompt actions rather than TerminalScreen events. A binding
 contains a `PromptKey`, optional text payload, and modifier set, which is enough
 to represent both dedicated keys and combinations such as Ctrl+S. The
 TerminalScreen adapter is responsible for translating its normalized key
-events before an engine compares them with these bindings.
+events before an engine compares them with these bindings. Matching is exact
+for key, text payload, and modifiers. Accordingly, the defaults represent
+TerminalScreen's normalized Space payload and Ctrl+C modifier explicitly.
 
 ## Dependency versions
 

@@ -22,11 +22,23 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
 - Internal TerminalScreen 0.1.0 adapter and semantic TerminalStyle theme.
 - Compile-checked API examples, deterministic contract tests, generated API
   documentation task, and a combined release-check task.
+- Automatic interactive/line session selection with a plain fallback for
+  redirected or limited terminals.
+- A binding-aware normalized input engine covering prompt actions, raw keys,
+  resize events, timeouts, and EOF without losing backend event data.
+- Unicode cell-aware transient redraw, line-mode output, and idempotent display
+  cleanup guards.
+- Reusable scripted session/output capture and POSIX PTY integration coverage
+  for cancellation and raw-mode restoration after failures.
 
 ### Changed
 
 - Use the suite-wide Nim 2.0.0 minimum and declare suite dependencies by
   GitHub URL, pinning the not-yet-tagged/not-yet-listed TerminalScreen API to a
   verified commit.
+- Default prompt sessions to safe fallback behavior while retaining an opt-in
+  strict terminal requirement.
+- Match the default Space and Ctrl+C bindings to TerminalScreen's normalized
+  text payload and modifier data.
 
 [Unreleased]: https://github.com/titanomachy/terminal-prompt/compare/v0.1.0...HEAD

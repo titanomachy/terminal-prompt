@@ -22,6 +22,7 @@ task compilePackage, "Compile terminal_prompt into the build directory":
 
 task test, "Run the terminal_prompt test suite":
   exec "nim c -r --path:src tests/test_contracts.nim"
+  exec "nim c -r --path:src tests/test_milestone1.nim"
 
 task examples, "Check that all terminal_prompt examples compile":
   exec "nim check --path:src examples/contracts.nim"
