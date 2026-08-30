@@ -1,7 +1,7 @@
 ## Synchronous, one-shot terminal prompts.
 ##
-## Text, password, and confirmation prompts are implemented. Selection prompts
-## retain their declared contracts while their state machines are completed.
+## Text, password, confirmation, single-select, and multi-select prompts are
+## implemented with interactive and redirected-stream behavior.
 ##
 ## Cancellation and end-of-input are values, not exceptions:
 ##

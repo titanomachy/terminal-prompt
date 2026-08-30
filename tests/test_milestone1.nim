@@ -82,7 +82,9 @@ suite "normalized input engine":
       (types.keyEnd, actionMoveLast),
       (types.keyBackspace, actionDeleteBackward),
       (types.keyDelete, actionDeleteForward),
-      (types.keySpace, actionToggle)
+      (types.keySpace, actionToggle),
+      (types.keyText, actionSelectAll),
+      (types.keyText, actionClearSelection)
     ]
     var events: seq[PromptInputEvent]
     for item in expected:
@@ -91,6 +93,9 @@ suite "normalized input engine":
         events.add keys.keyInput(item[0], modifiers = {types.modifierCtrl})
       of types.keySpace:
         events.add keys.keyInput(item[0], text = " ")
+      of types.keyText:
+        let value = if item[1] == actionSelectAll: "a" else: "c"
+        events.add keys.keyInput(item[0], text = value)
       else:
         events.add keys.keyInput(item[0])
     let scripted = newScriptedSession(events)

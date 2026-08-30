@@ -26,7 +26,8 @@ Exceptions are reserved for failures rather than normal user outcomes:
 - `PromptConfigurationError` for invalid options known before interaction;
 - `PromptIOError` for input, output, and terminal backend failures;
 - `PromptStateError` for misuse of an internal runtime contract;
-- `PromptNotImplementedError` while a declared API has no engine yet.
+- `PromptNotImplementedError` is reserved for a future API deliberately
+  declared before its engine exists; every current prompt API is implemented.
 
 Validators return an empty string on success and a user-facing validation
 message on failure. Validation failures are rendered and retried; they are not
@@ -53,6 +54,11 @@ The implementation contracts are split by responsibility:
 Prompt engines must accept these contracts internally so unit tests can use a
 scripted session and captured output. They must not read process-global
 `stdin` or write process-global `stdout` directly.
+
+Selection choices carry a user-facing label, typed value, optional hint, and a
+disabled flag. Single-select defaults identify one enabled choice by index.
+Multi-select defaults are unique enabled indices, and answers are returned in
+choice-list order independent of toggle order.
 
 ## Terminal lifecycle
 
@@ -87,6 +93,8 @@ TerminalScreen adapter is responsible for translating its normalized key
 events before an engine compares them with these bindings. Matching is exact
 for key, text payload, and modifiers. Accordingly, the defaults represent
 TerminalScreen's normalized Space payload and Ctrl+C modifier explicitly.
+Selection prompts additionally use `selectAll` and `clearSelection`; their
+defaults are the unmodified text keys `a` and `c`.
 
 ## Dependency versions
 
@@ -95,6 +103,6 @@ TerminalScreen 0.1.0 and TerminalStyle 0.1.1. Both suite dependencies are
 declared by GitHub URL. That keeps source resolution explicit and, in
 particular, makes TerminalScreen installable before it is present in the
 central Nimble package list. TerminalScreen is pinned to commit
-`1b41f327538a29960f634f97ba22fcff512cc216` while the repository has no
+`70de4d47047166871750da34ec6af02a97782ac6` while the repository has no
 `v0.1.0` tag; once that tag exists, the manifest can use a normal compatible
 version constraint.

@@ -90,6 +90,8 @@ type
     deleteBackward*: seq[PromptKeyBinding]
     deleteForward*: seq[PromptKeyBinding]
     toggle*: seq[PromptKeyBinding]
+    selectAll*: seq[PromptKeyBinding]
+    clearSelection*: seq[PromptKeyBinding]
 
   PromptTheme* = object
     ## Semantic prompt roles represented directly as TerminalStyle values.
@@ -149,6 +151,7 @@ type
     message*: string
     choices*: seq[PromptChoice[T]]
     initialIndex*: Option[int]
+    wrapNavigation*: bool
     presentation*: PromptPresentation
     runtime*: PromptRuntimeOptions
 
@@ -157,6 +160,7 @@ type
     message*: string
     choices*: seq[PromptChoice[T]]
     initiallySelected*: seq[int]
+    wrapNavigation*: bool
     presentation*: PromptPresentation
     runtime*: PromptRuntimeOptions
 
@@ -240,7 +244,9 @@ proc defaultPromptKeyBindings*(): PromptKeyBindings =
     moveLast: @[keyBinding(keyEnd)],
     deleteBackward: @[keyBinding(keyBackspace)],
     deleteForward: @[keyBinding(keyDelete)],
-    toggle: @[keyBinding(keySpace, text = " ")]
+    toggle: @[keyBinding(keySpace, text = " ")],
+    selectAll: @[keyBinding(keyText, text = "a")],
+    clearSelection: @[keyBinding(keyText, text = "c")]
   )
 
 proc defaultRuntimeOptions*(input: File = stdin; output: File = stdout;
@@ -294,20 +300,23 @@ proc choice*[T](label: string; value: sink T; hint = "";
 proc initSelectPromptOptions*[T](message: string;
                                  choices: sink seq[PromptChoice[T]];
                                  initialIndex = none(int);
+                                 wrapNavigation = true;
                                  presentation = defaultPresentation();
                                  runtime = defaultRuntimeOptions()
                                 ): SelectPromptOptions[T] =
   ## Constructs single-select prompt options.
   SelectPromptOptions[T](message: message, choices: choices,
-    initialIndex: initialIndex, presentation: presentation, runtime: runtime)
+    initialIndex: initialIndex, wrapNavigation: wrapNavigation,
+    presentation: presentation, runtime: runtime)
 
 proc initMultiSelectPromptOptions*[T](message: string;
                                       choices: sink seq[PromptChoice[T]];
                                       initiallySelected: sink seq[int] = @[];
+                                      wrapNavigation = true;
                                       presentation = defaultPresentation();
                                       runtime = defaultRuntimeOptions()
                                      ): MultiSelectPromptOptions[T] =
   ## Constructs multi-select prompt options.
   MultiSelectPromptOptions[T](message: message, choices: choices,
-    initiallySelected: initiallySelected, presentation: presentation,
-    runtime: runtime)
+    initiallySelected: initiallySelected, wrapNavigation: wrapNavigation,
+    presentation: presentation, runtime: runtime)

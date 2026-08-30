@@ -163,6 +163,8 @@ proc runLinePrompt*(session: PromptSession; spec: LinePromptSpec;
             redraw = editor.deleteForward()
           of actionToggle:
             redraw = editor.insertKey(event.actionKey)
+          of actionSelectAll, actionClearSelection:
+            redraw = editor.insertKey(event.actionKey)
           of actionMoveUp, actionMoveDown:
             discard
         of engineKey:

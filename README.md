@@ -1,16 +1,15 @@
 # TerminalPrompt
 
-Pure-Nim synchronous text, password, and confirmation prompts, with contracts
-in place for single-select and multi-select prompts.
+Pure-Nim synchronous text, password, confirmation, single-select, and
+multi-select prompts.
 
 > [!IMPORTANT]
-> Milestones 0 through 2 are complete. Text, password, and confirmation prompts
-> are implemented; selection prompts remain planned for Milestone 3 and still
-> raise `PromptNotImplementedError`.
+> Milestones 0 through 3 are complete. All five core prompt types work in
+> interactive terminals and with redirected input/output.
 
 ## Status
 
-Milestones 0 through 2 are complete. They establish:
+Milestones 0 through 3 are complete. They establish:
 
 - explicit answered, cancelled, and end-of-input results;
 - options-based and convenience prompt signatures;
@@ -30,6 +29,12 @@ Milestones 0 through 2 are complete. They establish:
 - masked or no-feedback password entry with validator and debug redaction;
 - confirmations with configurable labels, unambiguous initial matching, and
   explicit defaults;
+- single-select lists with defaults, disabled choices, optional navigation
+  wrapping, resize-aware viewports, and one-based indexed fallback;
+- multi-select lists with initial choices, toggle/select-all/clear actions,
+  explicit submission, and comma- or space-separated indexed fallback;
+- deterministic selection state-machine coverage and a POSIX PTY redraw smoke
+  test that preserves surrounding output;
 - logical-line fallback input that does not consume data intended for a later
   prompt.
 
@@ -41,10 +46,10 @@ tracked in [the implementation plan](PLANS/PLAN1.md).
 
 ## Installation
 
-TerminalScreen is not yet listed in Nimble, so TerminalPrompt declares it by
-GitHub URL. Because the repository has no `v0.1.0` tag yet, the dependency is
-pinned to the verified 0.1.0 API commit instead of following a moving `HEAD`.
-Nimble resolves it automatically:
+TerminalScreen is not yet listed in Nimble, so TerminalPrompt declares its
+pre-release API by GitHub URL. The dependency is pinned to the verified
+TerminalScreen revision containing its latest session/CI fixes, and Nimble
+resolves it automatically:
 
 ```sh
 nimble install https://github.com/titanomachy/terminal-prompt
@@ -62,8 +67,7 @@ During suite development, sibling checkouts can instead be linked with
 
 ## Public API
 
-The signatures below are compile-checked by `nimble examples`. Text, password,
-and confirmation are implemented; selection behavior follows in Milestone 3.
+The signatures below are compile-checked by `nimble examples`.
 
 ```nim
 import terminal_prompt
@@ -78,6 +82,13 @@ let features = askMultiSelect("Features", ["Docs", "Tests", "Examples"])
 Text prompts treat placeholders as display-only hints and use a configured
 default only when the submitted editor is empty. Password prompts never render
 the entered value and redact sensitive `PromptResult` debug output.
+
+Single-select prompts use Up/Down and Enter in an interactive terminal.
+Multi-select adds Space to toggle, `a` to select all enabled choices, `c` to
+clear, and Enter for explicit submission. Home/End jump to the first/last
+enabled choice, disabled choices are skipped, and navigation wraps by default.
+Redirected input uses one-based choice numbers; multi-select accepts comma- or
+space-separated numbers.
 
 Every call returns `PromptResult[T]`:
 
@@ -104,8 +115,9 @@ import terminal_prompt
 
 let portOptions = initSelectPromptOptions("Port", @[
   choice("HTTP", 80),
-  choice("HTTPS", 443, hint = "recommended")
-], initialIndex = some(1))
+  choice("HTTPS", 443, hint = "recommended"),
+  choice("Legacy", 8080, disabled = true)
+], initialIndex = some(1), wrapNavigation = false)
 
 let port: PromptResult[int] = askSelect(portOptions)
 ```

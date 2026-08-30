@@ -120,6 +120,6 @@ suite "Public option contracts":
     check selectOptions.choices[1].value == 443
     check selectOptions.initialIndex.get == 1
 
-  test "selection calls advertise their milestone status":
-    expect PromptNotImplementedError:
-      discard askSelect("Color", ["Red", "Blue"])
+    check selectOptions.wrapNavigation
+    check defaultPromptKeyBindings().selectAll ==
+      @[keyBinding(terminal_prompt.keyText, "a")]

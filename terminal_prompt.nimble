@@ -11,7 +11,7 @@ skipDirs      = @["build", "PLANS"]
 # Dependencies
 
 requires "nim >= 2.0.0"
-requires "https://github.com/titanomachy/terminal-screen#@head"
+requires "https://github.com/titanomachy/terminal-screen#70de4d47047166871750da34ec6af02a97782ac6"
 requires "https://github.com/titanomachy/terminal-style >= 0.1.1"
 
 
@@ -25,6 +25,7 @@ task test, "Run the terminal_prompt test suite":
   exec "nim c -r --path:src tests/test_milestone1.nim"
   exec "nim c -r --path:src tests/test_editor.nim"
   exec "nim c -r --path:src tests/test_milestone2.nim"
+  exec "nim c -r --path:src tests/test_milestone3.nim"
 
 task examples, "Check that all terminal_prompt examples compile":
   exec "nim check --path:src examples/contracts.nim"

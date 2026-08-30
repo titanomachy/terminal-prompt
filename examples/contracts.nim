@@ -1,7 +1,7 @@
 ## Compile-checked examples of the public API.
 ##
 ## This procedure is deliberately not called so compile checks remain
-## non-interactive. Selection engines are completed in Milestone 3.
+## non-interactive.
 
 import std/options
 
@@ -39,8 +39,9 @@ proc publicApiContracts() {.used.} =
 
   let selectOptions = initSelectPromptOptions("Port", @[
     choice("HTTP", 80),
-    choice("HTTPS", 443, hint = "recommended")
-  ], initialIndex = some(1))
+    choice("HTTPS", 443, hint = "recommended"),
+    choice("Legacy", 8080, disabled = true)
+  ], initialIndex = some(1), wrapNavigation = false)
   let port: PromptResult[int] = askSelect(selectOptions)
   discard port
 

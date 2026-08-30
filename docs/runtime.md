@@ -37,7 +37,8 @@ movement, deletion, and toggling. The default bindings recognize:
 - Escape and Ctrl+C for cancellation;
 - arrows and Home/End for movement;
 - Backspace/Delete for deletion;
-- Space for toggling.
+- Space for toggling;
+- `a` for selecting all enabled choices and `c` for clearing a multi-select.
 
 Unbound events are preserved rather than discarded. This includes text, Tab,
 Backtab, Ctrl+D, Insert, Page Up/Down, and unknown escape sequences. Resize,
@@ -76,5 +77,5 @@ becomes a cancellation action and that terminal flags are restored after an
 injected exception. TerminalPrompt delegates platform-specific decoding and
 restoration to TerminalScreen, including its Windows backend.
 
-The concrete text, password, and confirmation behavior built on this runtime is
-documented in [prompts.md](prompts.md).
+All five concrete prompt behaviors built on this runtime are documented in
+[prompts.md](prompts.md).

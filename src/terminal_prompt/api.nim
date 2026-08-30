@@ -2,12 +2,8 @@
 
 import std/options
 
-import ./[confirm_prompt, password_prompt, terminal_screen_adapter,
-  text_prompt, types]
-
-proc pending[T](name: string): PromptResult[T] =
-  raise newException(PromptNotImplementedError,
-    name & " behavior is planned for a later TerminalPrompt milestone")
+import ./[confirm_prompt, multiselect_prompt, password_prompt, select_prompt,
+  terminal_screen_adapter, text_prompt, types]
 
 proc askText*(options: TextPromptOptions): PromptResult[string] =
   ## Runs a text prompt using explicit options.
@@ -58,7 +54,9 @@ proc askConfirm*(message: string; default = false; yesLabel = "Yes";
 
 proc askSelect*[T](options: SelectPromptOptions[T]): PromptResult[T] =
   ## Runs a single-select prompt using explicit options.
-  pending[T]("askSelect")
+  options.validateSelectOptions()
+  runSelectPrompt(openTerminalScreenSession(options.runtime.input,
+    options.runtime.output), options)
 
 proc askSelect*(message: string; choices: openArray[string];
                 helpText = "";
@@ -73,7 +71,9 @@ proc askSelect*(message: string; choices: openArray[string];
 proc askMultiSelect*[T](options: MultiSelectPromptOptions[T]):
     PromptResult[seq[T]] =
   ## Runs a multi-select prompt using explicit options.
-  pending[seq[T]]("askMultiSelect")
+  options.validateMultiSelectOptions()
+  runMultiSelectPrompt(openTerminalScreenSession(options.runtime.input,
+    options.runtime.output), options)
 
 proc askMultiSelect*(message: string; choices: openArray[string];
                      helpText = "";

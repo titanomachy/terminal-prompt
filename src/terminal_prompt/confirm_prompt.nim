@@ -5,7 +5,7 @@ import std/[strutils, unicode]
 import ./[editor, line_prompt, session, types]
 
 proc normalized(value: string): string =
-  value.strip.toLower
+  unicode.toLower(strutils.strip(value))
 
 proc firstUnit(value: string): string =
   let editor = initLineEditor(value)

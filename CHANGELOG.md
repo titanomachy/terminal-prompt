@@ -41,6 +41,17 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
   full-label matching, and unambiguous initial shortcuts.
 - Deterministic Milestone 2 coverage for interactive editing, validation,
   cancellation, EOF, resize, password secrecy, and redirected public APIs.
+- Single-select prompts with arrow/Home/End navigation, optional wrapping,
+  disabled-choice skipping, initial choices, terminal-height viewports, and
+  resize-aware focus visibility.
+- Multi-select prompts with initial selections, Space toggling, configurable
+  select-all/clear bindings, disabled-choice protection, and explicit Enter
+  submission.
+- Plain line-mode selection using one-based indices, including comma- or
+  space-separated multi-select input, validation retries, and documented empty
+  list behavior.
+- Deterministic Milestone 3 state-machine tests and a POSIX PTY smoke test for
+  redraws that preserve output surrounding a selection prompt.
 
 ### Changed
 
@@ -53,5 +64,11 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
   text payload and modifier data.
 - Read redirected input one logical line per prompt so a session cannot consume
   input intended for subsequent one-shot prompts.
+- Implement the previously declared single-select and multi-select APIs and add
+  navigation wrapping plus select-all/clear fields to their option contracts.
+- Replace the invalid TerminalScreen `#@head` selector with a reproducible pin
+  to the latest verified session/CI fix revision.
+- Qualify confirmation label normalization to compile without an ambiguous
+  `strip` overload on the supported Nim 2.0 floor.
 
 [Unreleased]: https://github.com/titanomachy/terminal-prompt/compare/v0.1.0...HEAD

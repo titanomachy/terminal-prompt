@@ -18,6 +18,8 @@ type
     actionDeleteBackward
     actionDeleteForward
     actionToggle
+    actionSelectAll
+    actionClearSelection
 
   PromptEngineEventKind* = enum
     ## Events emitted by ``PromptInputEngine``.
@@ -73,6 +75,8 @@ proc resolveAction*(event: PromptKeyEvent;
   elif bindings.deleteBackward.contains(event): some(actionDeleteBackward)
   elif bindings.deleteForward.contains(event): some(actionDeleteForward)
   elif bindings.toggle.contains(event): some(actionToggle)
+  elif bindings.selectAll.contains(event): some(actionSelectAll)
+  elif bindings.clearSelection.contains(event): some(actionClearSelection)
   else: none(PromptAction)
 
 proc newPromptInputEngine*(io: PromptIO;

@@ -1,8 +1,8 @@
-# Text, password, and confirmation prompts
+# Prompt behavior
 
-Milestone 2 implements the three editable one-line prompts. Each public call
-opens an isolated session, uses the configured streams and key bindings, and
-returns an answered, cancelled, or end-of-input `PromptResult`.
+Milestones 2 and 3 implement the five core prompts. Each public call opens an
+isolated session, uses the configured streams and key bindings, and returns an
+answered, cancelled, or end-of-input `PromptResult`.
 
 ## Shared editing behavior
 
@@ -62,3 +62,46 @@ accepted. Other input renders `Enter <yesLabel> or <noLabel>.` and retries.
 
 Labels must be non-empty, distinct without case sensitivity, valid UTF-8, and
 free of control characters.
+
+## Single-select prompts
+
+Interactive single-select prompts focus their configured `initialIndex`, or
+the first enabled choice when no initial index is provided. Up/Down skips
+disabled choices, Home/End jumps to the first/last enabled choice, and Enter
+submits the focused value. Navigation wraps at the ends by default;
+`wrapNavigation = false` clamps it instead.
+
+Lists taller than the terminal use a moving viewport sized from the latest
+terminal height. A `[position/count]` heading indicator shows that the list is
+clipped. Resize events recompute the viewport without changing focus, and each
+rendered row is truncated at a whole terminal grapheme to avoid accidental
+wrapping in narrow terminals.
+
+Line mode displays every choice with a one-based number. Entering that number
+submits the choice; a blank line submits the configured initial choice (or the
+first enabled choice). Invalid and disabled indices render an error and start
+a fresh attempt. An empty list, an all-disabled list, an out-of-range default,
+or a disabled default is a `PromptConfigurationError`.
+
+## Multi-select prompts
+
+Interactive multi-select uses the same focus movement and viewport rules.
+Space toggles the focused choice, `a` selects every enabled choice, `c` clears
+the selection, and Enter explicitly submits. Select-all and clear are normal
+configurable bindings (`selectAll` and `clearSelection`), not hard-coded input.
+Movement skips disabled choices, toggling never changes them, and select-all
+excludes them.
+
+Initial selection indices must be unique, in range, and enabled. Submitted
+values are returned in original choice-list order. Toggling alone never
+submits, so cancellation and EOF remain distinct outcomes even after state has
+changed.
+
+Line mode accepts one-based numbers separated by commas, spaces, or tabs. A
+blank line preserves the initial selection. Invalid or disabled indices retry
+without replacing the current selection. The configured select-all/clear
+bindings remain available before Enter.
+
+Unlike single-select, multi-select accepts an empty or all-disabled choice
+list: explicit Enter returns an answered empty sequence. This keeps “choose
+zero or more” literal while preserving cancellation and EOF semantics.
