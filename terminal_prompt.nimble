@@ -24,6 +24,7 @@ task test, "Run the terminal_prompt test suite":
   exec "nim c -r --path:src tests/test_contracts.nim"
   exec "nim c -r --path:src tests/test_milestone1.nim"
   exec "nim c -r --path:src tests/test_editor.nim"
+  exec "nim c -r --path:src tests/test_milestone2.nim"
 
 task examples, "Check that all terminal_prompt examples compile":
   exec "nim check --path:src examples/contracts.nim"

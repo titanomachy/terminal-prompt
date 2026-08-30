@@ -29,8 +29,9 @@ Exceptions are reserved for failures rather than normal user outcomes:
 - `PromptNotImplementedError` while a declared API has no engine yet.
 
 Validators return an empty string on success and a user-facing validation
-message on failure. Validation failures are rendered and retried by the future
-engines; they are not exceptions.
+message on failure. Validation failures are rendered and retried; they are not
+exceptions. Password prompts additionally redact their submitted value from
+validator messages and library-owned debug output.
 
 ## Internal boundaries
 

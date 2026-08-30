@@ -1,17 +1,16 @@
 # TerminalPrompt
 
-Pure-Nim contracts for synchronous text, password, confirmation, single-select,
-and multi-select prompts.
+Pure-Nim synchronous text, password, and confirmation prompts, with contracts
+in place for single-select and multi-select prompts.
 
 > [!IMPORTANT]
-> Milestones 0 and 1 define and test the API contracts, safe session/input
-> engine, line-mode fallback, and cursor-safe display lifecycle. The concrete
-> prompt editors are not implemented yet; calling an `ask*` proc currently
-> raises `PromptNotImplementedError`.
+> Milestones 0 through 2 are complete. Text, password, and confirmation prompts
+> are implemented; selection prompts remain planned for Milestone 3 and still
+> raise `PromptNotImplementedError`.
 
 ## Status
 
-Milestones 0 and 1 are complete. They establish:
+Milestones 0 through 2 are complete. They establish:
 
 - explicit answered, cancelled, and end-of-input results;
 - options-based and convenience prompt signatures;
@@ -25,10 +24,18 @@ Milestones 0 and 1 are complete. They establish:
 - binding-aware normalized input for editing, navigation, cancellation, EOF,
   timeout, and resize events;
 - cell-aware in-place redraw with exception-safe display/session cleanup;
-- reusable scripted I/O capture and POSIX PTY lifecycle coverage.
+- reusable scripted I/O capture and POSIX PTY lifecycle coverage;
+- Unicode-aware text editing with defaults, placeholders, validation errors,
+  and retries;
+- masked or no-feedback password entry with validator and debug redaction;
+- confirmations with configurable labels, unambiguous initial matching, and
+  explicit defaults;
+- logical-line fallback input that does not consume data intended for a later
+  prompt.
 
-See [the contract documentation](docs/contracts.md) for the exception policy
-and internal boundaries, and [the runtime documentation](docs/runtime.md) for
+See [the prompt documentation](docs/prompts.md) for concrete behavior,
+[the contract documentation](docs/contracts.md) for the exception policy and
+internal boundaries, and [the runtime documentation](docs/runtime.md) for
 session modes, input actions, and redraw behavior. The remaining work is
 tracked in [the implementation plan](PLANS/PLAN1.md).
 
@@ -53,10 +60,10 @@ nimble releaseCheck
 During suite development, sibling checkouts can instead be linked with
 `nimble develop`.
 
-## Public API direction
+## Public API
 
-The signatures below are compile-checked by `nimble examples`. They document
-the API being implemented in Milestones 2 and 3.
+The signatures below are compile-checked by `nimble examples`. Text, password,
+and confirmation are implemented; selection behavior follows in Milestone 3.
 
 ```nim
 import terminal_prompt
@@ -67,6 +74,10 @@ let proceed = askConfirm("Continue?", default = false)
 let color = askSelect("Color", ["Red", "Green", "Blue"])
 let features = askMultiSelect("Features", ["Docs", "Tests", "Examples"])
 ```
+
+Text prompts treat placeholders as display-only hints and use a configured
+default only when the submitted editor is empty. Password prompts never render
+the entered value and redact sensitive `PromptResult` debug output.
 
 Every call returns `PromptResult[T]`:
 

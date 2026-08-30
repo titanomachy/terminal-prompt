@@ -1,7 +1,7 @@
-## Compile-checked examples of the Milestone 0 public API.
+## Compile-checked examples of the public API.
 ##
-## This procedure is deliberately not called: prompt engines are implemented
-## in Milestones 1 through 3, while this file locks their public signatures.
+## This procedure is deliberately not called so compile checks remain
+## non-interactive. Selection engines are completed in Milestone 3.
 
 import std/options
 

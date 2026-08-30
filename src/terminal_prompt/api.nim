@@ -1,8 +1,9 @@
-## Public prompt signatures established by Milestone 0.
+## Public synchronous prompt API.
 
 import std/options
 
-import ./types
+import ./[confirm_prompt, password_prompt, terminal_screen_adapter,
+  text_prompt, types]
 
 proc pending[T](name: string): PromptResult[T] =
   raise newException(PromptNotImplementedError,
@@ -10,7 +11,9 @@ proc pending[T](name: string): PromptResult[T] =
 
 proc askText*(options: TextPromptOptions): PromptResult[string] =
   ## Runs a text prompt using explicit options.
-  pending[string]("askText")
+  options.validateTextOptions()
+  runTextPrompt(openTerminalScreenSession(options.runtime.input,
+    options.runtime.output), options)
 
 proc askText*(message: string; placeholder = ""; helpText = "";
               validator: Validator[string] = nil;
@@ -29,7 +32,9 @@ proc askText*(message: string; default: string; placeholder = "";
 
 proc askPassword*(options: PasswordPromptOptions): PromptResult[string] =
   ## Runs a secret text prompt using explicit options.
-  pending[string]("askPassword")
+  options.validatePasswordOptions()
+  runPasswordPrompt(openTerminalScreenSession(options.runtime.input,
+    options.runtime.output), options)
 
 proc askPassword*(message: string; mask = "*"; helpText = "";
                   validator: Validator[string] = nil;
@@ -40,7 +45,9 @@ proc askPassword*(message: string; mask = "*"; helpText = "";
 
 proc askConfirm*(options: ConfirmPromptOptions): PromptResult[bool] =
   ## Runs a confirmation prompt using explicit options.
-  pending[bool]("askConfirm")
+  options.validateConfirmOptions()
+  runConfirmPrompt(openTerminalScreenSession(options.runtime.input,
+    options.runtime.output), options)
 
 proc askConfirm*(message: string; default = false; yesLabel = "Yes";
                  noLabel = "No"; helpText = "";

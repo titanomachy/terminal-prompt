@@ -15,10 +15,11 @@ true:
 - ANSI output is supported.
 
 Any missing capability selects `promptLineMode`. Line-mode sessions disable raw
-mode, cursor hiding, resize monitoring, and ANSI output before opening the
-TerminalScreen backend. This keeps redirected input, redirected output, and
-`TERM=dumb` usable without emitting cursor controls or changing terminal input
-modes.
+mode, cursor hiding, resize monitoring, and ANSI output. They read one logical
+line directly from the borrowed `File` instead of opening TerminalScreen's raw
+event decoder; this prevents one one-shot prompt from reading ahead into lines
+intended for later prompts. Redirected input, redirected output, and `TERM=dumb`
+therefore remain usable without cursor controls or terminal mode changes.
 
 Fallback is the default: `defaultPromptSessionOptions()` sets
 `requireTerminal` to `false`. Internal callers can set it to `true` when a
@@ -74,3 +75,6 @@ On POSIX, a PTY integration test additionally verifies that a real Ctrl+C byte
 becomes a cancellation action and that terminal flags are restored after an
 injected exception. TerminalPrompt delegates platform-specific decoding and
 restoration to TerminalScreen, including its Windows backend.
+
+The concrete text, password, and confirmation behavior built on this runtime is
+documented in [prompts.md](prompts.md).

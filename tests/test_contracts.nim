@@ -120,6 +120,6 @@ suite "Public option contracts":
     check selectOptions.choices[1].value == 443
     check selectOptions.initialIndex.get == 1
 
-  test "behavior calls advertise their milestone status":
+  test "selection calls advertise their milestone status":
     expect PromptNotImplementedError:
-      discard askConfirm("Continue?")
+      discard askSelect("Color", ["Red", "Blue"])

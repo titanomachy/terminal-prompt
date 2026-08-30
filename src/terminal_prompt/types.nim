@@ -37,6 +37,7 @@ type
     ## stream. Neither condition raises an exception.
     status*: PromptStatus
     answer: T
+    sensitive: bool
 
   Validator*[T] = proc(value: T): string {.closure.}
     ## Returns an empty string for a valid value, otherwise a user-facing error.
@@ -159,9 +160,11 @@ type
     presentation*: PromptPresentation
     runtime*: PromptRuntimeOptions
 
-proc answered*[T](value: sink T): PromptResult[T] =
+proc answered*[T](value: sink T; sensitive = false): PromptResult[T] =
   ## Constructs a successfully answered result.
-  PromptResult[T](status: promptAnswered, answer: value)
+  ##
+  ## Sensitive results redact their value from the ``$`` debug representation.
+  PromptResult[T](status: promptAnswered, answer: value, sensitive: sensitive)
 
 proc cancelled*[T](): PromptResult[T] =
   ## Constructs an explicitly cancelled result.
@@ -193,6 +196,17 @@ proc value*[T](response: PromptResult[T]): T =
 proc valueOr*[T](response: PromptResult[T]; fallback: sink T): T =
   ## Returns the answer, or ``fallback`` for cancellation/end-of-input.
   if response.isAnswered: response.answer else: fallback
+
+proc `$`*[T](response: PromptResult[T]): string =
+  ## Returns a concise debug representation, redacting sensitive answers.
+  result = "PromptResult(status: " & $response.status
+  if response.isAnswered:
+    result.add ", answer: "
+    if response.sensitive:
+      result.add "[redacted]"
+    else:
+      result.add $response.answer
+  result.add ")"
 
 proc defaultPromptTheme*(): PromptTheme =
   ## Returns the semantic default theme backed by TerminalStyle.

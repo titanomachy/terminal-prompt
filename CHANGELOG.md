@@ -32,6 +32,15 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
   for cancellation and raw-mode restoration after failures.
 - A Unicode- and terminal-cell-aware shared line editor with grapheme-safe
   insertion, movement, Backspace, Delete, Home, and End operations.
+- Text prompts with visual placeholders, empty-submission defaults, validators,
+  retained interactive corrections, and fresh line-mode retries.
+- Password prompts with configurable one-grapheme or no-feedback masking,
+  validator-message redaction, generic validator-failure diagnostics, and
+  sensitive `PromptResult` debug representations.
+- Confirmation prompts with configurable labels and defaults, case-insensitive
+  full-label matching, and unambiguous initial shortcuts.
+- Deterministic Milestone 2 coverage for interactive editing, validation,
+  cancellation, EOF, resize, password secrecy, and redirected public APIs.
 
 ### Changed
 
@@ -42,5 +51,7 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
   strict terminal requirement.
 - Match the default Space and Ctrl+C bindings to TerminalScreen's normalized
   text payload and modifier data.
+- Read redirected input one logical line per prompt so a session cannot consume
+  input intended for subsequent one-shot prompts.
 
 [Unreleased]: https://github.com/titanomachy/terminal-prompt/compare/v0.1.0...HEAD

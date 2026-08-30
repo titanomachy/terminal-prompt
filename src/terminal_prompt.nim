@@ -1,9 +1,7 @@
-## Synchronous, one-shot terminal prompt contracts.
+## Synchronous, one-shot terminal prompts.
 ##
-## TerminalPrompt exposes the Milestone 0 API contracts and uses the Milestone
-## 1 safe session/input foundation internally. Concrete prompt editors are
-## added in subsequent milestones; calling an ``ask*`` proc until then raises
-## ``PromptNotImplementedError``.
+## Text, password, and confirmation prompts are implemented. Selection prompts
+## retain their declared contracts while their state machines are completed.
 ##
 ## Cancellation and end-of-input are values, not exceptions:
 ##

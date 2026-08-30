@@ -16,6 +16,15 @@ type
     output: File
     selectedMode: PromptSessionMode
 
+  LinePromptSession = ref object of PromptSession
+    ## Line-oriented session that does not read ahead across prompt calls.
+    input: File
+    output: File
+    detectedCapabilities: PromptCapabilities
+    pendingEnter: bool
+    inputEnded: bool
+    closed: bool
+
 proc toPromptModifiers(modifiers: set[screen.Modifier]):
     set[PromptModifier] =
   if screen.modifierShift in modifiers:
@@ -95,21 +104,82 @@ proc openTerminalScreenSession*(input: File = stdin; output: File = stdout;
   try:
     let detected = detectPromptCapabilities(input, output, options.ansiMode)
     let selectedMode = detected.selectSessionMode(options)
-    var effectiveOptions = options
+    if options.requireTerminal and
+        (not detected.inputIsTerminal or not detected.outputIsTerminal):
+      raise newException(PromptIOError,
+        "cannot open prompt session: input and output must be terminals")
     if selectedMode == promptLineMode:
-      effectiveOptions.rawMode = false
-      effectiveOptions.hideCursor = false
-      effectiveOptions.monitorResize = false
-      effectiveOptions.ansiMode = promptAnsiNever
+      var lineCapabilities = detected
+      lineCapabilities.supportsAnsi = false
+      lineCapabilities.supportsRawMode = false
+      lineCapabilities.supportsResizeEvents = false
+      return LinePromptSession(input: input, output: output,
+        detectedCapabilities: lineCapabilities)
+
     TerminalScreenPromptSession(
       backend: screen.openSession(input, output,
-        effectiveOptions.toScreenOptions()),
+        options.toScreenOptions()),
       output: output,
       selectedMode: selectedMode
     )
   except screen.TerminalError as error:
     raise newException(PromptIOError,
       "cannot open TerminalScreen prompt session: " & error.msg, error)
+
+method readEvent*(session: LinePromptSession;
+                  timeoutMs = -1): PromptInputEvent =
+  if session.closed:
+    raise newException(PromptStateError,
+      "cannot read from a closed line prompt session")
+  if session.pendingEnter:
+    session.pendingEnter = false
+    return keys.keyInput(types.keyEnter)
+  if session.inputEnded:
+    return keys.endInput()
+  try:
+    var line: string
+    if not session.input.readLine(line):
+      session.inputEnded = true
+      return keys.endInput()
+    if line.len == 0:
+      return keys.keyInput(types.keyEnter)
+    session.pendingEnter = true
+    keys.keyInput(types.keyText, text = line, sequence = line)
+  except IOError as error:
+    raise newException(PromptIOError,
+      "cannot read line prompt input: " & error.msg, error)
+
+method write*(session: LinePromptSession; value: string) =
+  if session.closed:
+    raise newException(PromptStateError,
+      "cannot write to a closed line prompt session")
+  try:
+    session.output.write(value)
+  except IOError as error:
+    raise newException(PromptIOError,
+      "cannot write prompt output: " & error.msg, error)
+
+method flush*(session: LinePromptSession) =
+  if session.closed:
+    raise newException(PromptStateError,
+      "cannot flush a closed line prompt session")
+  try:
+    session.output.flushFile()
+  except IOError as error:
+    raise newException(PromptIOError,
+      "cannot flush prompt output: " & error.msg, error)
+
+method capabilities*(session: LinePromptSession): PromptCapabilities =
+  session.detectedCapabilities
+
+method mode*(session: LinePromptSession): PromptSessionMode =
+  promptLineMode
+
+method terminalSize*(session: LinePromptSession): Option[PromptSize] =
+  none(PromptSize)
+
+method close*(session: LinePromptSession) =
+  session.closed = true
 
 method readEvent*(session: TerminalScreenPromptSession;
                   timeoutMs = -1): PromptInputEvent =
