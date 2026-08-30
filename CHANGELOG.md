@@ -30,6 +30,8 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
   cleanup guards.
 - Reusable scripted session/output capture and POSIX PTY integration coverage
   for cancellation and raw-mode restoration after failures.
+- A Unicode- and terminal-cell-aware shared line editor with grapheme-safe
+  insertion, movement, Backspace, Delete, Home, and End operations.
 
 ### Changed
 
