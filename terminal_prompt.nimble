@@ -11,7 +11,7 @@ skipDirs      = @["build", "PLANS"]
 # Dependencies
 
 requires "nim >= 2.0.0"
-requires "https://github.com/titanomachy/terminal-screen#1b41f327538a29960f634f97ba22fcff512cc216"
+requires "https://github.com/titanomachy/terminal-screen#@head"
 requires "https://github.com/titanomachy/terminal-style >= 0.1.1"
 
 
