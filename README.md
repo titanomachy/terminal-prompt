@@ -104,10 +104,11 @@ for custom bindings, typed choices, and explicit result handling.
 
 ## Compatibility and security
 
-CI exercises Nim 2.0.x and stable Nim on Linux, macOS, and Windows. A prompt
-uses interactive mode only when both streams are terminals and raw input plus
-ANSI output are available. Otherwise it falls back to plain line-oriented I/O,
-so pipes, files, limited consoles, and `TERM=dumb` remain usable.
+CI exercises Nim 2.0.x and stable Nim on Linux, macOS, and Windows using the
+compiler's default memory manager, plus ARC and ORC on stable Nim/Linux. A
+prompt uses interactive mode only when both streams are terminals and raw input
+plus ANSI output are available. Otherwise it falls back to plain line-oriented
+I/O, so pipes, files, limited consoles, and `TERM=dumb` remain usable.
 
 Password entry does not echo its answer, and password results redact their
 debug representation. The returned `.value` is still an ordinary Nim string;
@@ -122,8 +123,9 @@ The supported floor is Nim 2.0.0. The full local check is:
 nimble releaseCheck
 ```
 
-Individual tasks are `nimble compilePackage`, `nimble test`,
-`nimble examples`, `nimble docs`, and `nimble benchmark`. Compiler products and
-generated docs are kept under `build/`. The benchmark measures viewport-backed
-selection with up to 100,000 choices; filtering remains deferred until real
-usage demonstrates that its additional interaction contract is justified.
+Individual tasks are `nimble compilePackage`, `nimble test`, `nimble testArc`,
+`nimble testOrc`, `nimble testMemoryManagers`, `nimble examples`, `nimble docs`,
+and `nimble benchmark`. Compiler products and generated docs are kept under
+`build/`. The benchmark measures viewport-backed selection with up to 100,000
+choices; filtering remains deferred until real usage demonstrates that its
+additional interaction contract is justified.

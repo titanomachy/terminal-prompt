@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   test:
-    name: ${{ matrix.os }} / Nim ${{ matrix.nim }}
+    name: ${{ matrix.os }} / Nim ${{ matrix.nim }} / default MM
     strategy:
       fail-fast: false
       matrix:
@@ -31,3 +31,30 @@ jobs:
           nimble install --depsOnly --accept
       - name: Run release checks
         run: nimble releaseCheck
+
+  memory-manager:
+    name: ubuntu-latest / Nim stable / ${{ matrix.memory-manager }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - memory-manager: ARC
+            task: testArc
+          - memory-manager: ORC
+            task: testOrc
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: jiro4989/setup-nim-action@v2
+        with:
+          nim-version: stable
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install dependencies
+        shell: bash
+        run: |
+          nimble refresh --accept
+          nimble install --depsOnly --accept
+      - name: Run ${{ matrix.memory-manager }} tests
+        run: nimble ${{ matrix.task }}

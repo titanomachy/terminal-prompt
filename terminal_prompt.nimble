@@ -17,16 +17,38 @@ requires "https://github.com/titanomachy/terminal-style >= 0.1.1"
 
 # Tasks
 
+const testFiles = [
+  "tests/test_contracts.nim",
+  "tests/test_milestone1.nim",
+  "tests/test_editor.nim",
+  "tests/test_milestone2.nim",
+  "tests/test_milestone3.nim",
+  "tests/test_milestone4.nim",
+  "tests/test_strategy.nim"
+]
+
+proc runTests(memoryManager = "") =
+  let memoryManagerFlag =
+    if memoryManager.len == 0: ""
+    else: " --mm:" & memoryManager
+  for testFile in testFiles:
+    exec "nim c -r" & memoryManagerFlag & " --path:src " & testFile
+
 task compilePackage, "Compile terminal_prompt into the build directory":
   exec "nim c --path:src src/terminal_prompt.nim"
 
 task test, "Run the terminal_prompt test suite":
-  exec "nim c -r --path:src tests/test_contracts.nim"
-  exec "nim c -r --path:src tests/test_milestone1.nim"
-  exec "nim c -r --path:src tests/test_editor.nim"
-  exec "nim c -r --path:src tests/test_milestone2.nim"
-  exec "nim c -r --path:src tests/test_milestone3.nim"
-  exec "nim c -r --path:src tests/test_milestone4.nim"
+  runTests()
+
+task testArc, "Run the terminal_prompt test suite with ARC":
+  runTests("arc")
+
+task testOrc, "Run the terminal_prompt test suite with ORC":
+  runTests("orc")
+
+task testMemoryManagers, "Run the test suite with ARC and ORC":
+  runTests("arc")
+  runTests("orc")
 
 task examples, "Check that all terminal_prompt examples compile":
   exec "nim check --path:src examples/contracts.nim"

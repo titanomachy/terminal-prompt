@@ -3,9 +3,11 @@
 ## Supported environments
 
 TerminalPrompt supports Nim 2.0.0 and newer. CI runs the Nim 2.0 release line
-and the current stable compiler on Linux, macOS, and Windows. POSIX jobs also
-exercise pseudo-terminal integration; all platforms run deterministic session,
-prompt, redirected-stream, Unicode, narrow-terminal, and resize tests.
+and the current stable compiler on Linux, macOS, and Windows with the default
+memory manager. Stable Nim/Linux additionally runs the portable test suite
+under ARC and ORC. POSIX jobs also exercise pseudo-terminal integration; all
+platforms run deterministic session, prompt, redirected-stream, Unicode,
+narrow-terminal, and resize tests.
 
 Terminal behavior is capability-driven rather than OS-name-driven. Full
 interactive mode requires terminal input and output plus raw-input and ANSI

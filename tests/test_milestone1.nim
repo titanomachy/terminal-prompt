@@ -210,22 +210,32 @@ suite "cursor-safe prompt display":
     check scripted.closeCount == 1
 
 suite "TerminalScreen key adapter coverage":
-  test "all Milestone 1 normalized keys retain their meaning":
+  test "every normalized key retains its meaning":
     let pairs = @[
+      (screen.keyUnknown, types.keyUnknown),
+      (screen.keyText, types.keyText),
+      (screen.keySpace, types.keySpace),
       (screen.keyEnter, types.keyEnter),
       (screen.keyEscape, types.keyEscape),
+      (screen.keyTab, types.keyTab),
+      (screen.keyBacktab, types.keyBacktab),
+      (screen.keyBackspace, types.keyBackspace),
+      (screen.keyDelete, types.keyDelete),
+      (screen.keyInsert, types.keyInsert),
+      (screen.keyHome, types.keyHome),
+      (screen.keyEnd, types.keyEnd),
       (screen.keyArrowUp, types.keyArrowUp),
       (screen.keyArrowDown, types.keyArrowDown),
       (screen.keyArrowLeft, types.keyArrowLeft),
       (screen.keyArrowRight, types.keyArrowRight),
-      (screen.keyHome, types.keyHome),
-      (screen.keyEnd, types.keyEnd),
-      (screen.keyBackspace, types.keyBackspace),
-      (screen.keyDelete, types.keyDelete),
-      (screen.keyTab, types.keyTab),
-      (screen.keySpace, types.keySpace),
-      (screen.keyCtrlC, types.keyCtrlC)
+      (screen.keyPageUp, types.keyPageUp),
+      (screen.keyPageDown, types.keyPageDown),
+      (screen.keyCtrlC, types.keyCtrlC),
+      (screen.keyCtrlD, types.keyCtrlD)
     ]
+    check pairs.len == ord(high(screen.Key)) - ord(low(screen.Key)) + 1
+    check pairs.len == ord(high(types.PromptKey)) -
+      ord(low(types.PromptKey)) + 1
     for item in pairs:
       check toPromptEvent(screen.keyInput(item[0])).keyEvent.key == item[1]
     check toPromptEvent(screen.endOfInput()).kind == keys.inputEndOfInput

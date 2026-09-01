@@ -21,6 +21,7 @@ nimble install --depsOnly
 nimble check
 nimble compilePackage
 nimble test
+nimble testMemoryManagers
 nimble examples
 nimble docs
 nimble benchmark
@@ -58,9 +59,11 @@ nimble releaseCheck
 ```
 
 CI repeats release checks with Nim 2.0.x and stable Nim on Linux, macOS, and
-Windows. Platform-specific tests should use compile-time guards only where the
-underlying operating-system facility is genuinely unavailable; behavioral
-state-machine coverage should remain portable.
+Windows, then runs the portable suite with ARC and ORC on stable Nim/Linux.
+Use `nimble testArc` or `nimble testOrc` to reproduce one memory-manager job.
+Platform-specific tests should use compile-time guards only where the underlying
+operating-system facility is genuinely unavailable; behavioral state-machine
+coverage should remain portable.
 
 For selection changes, run `nimble benchmark` and compare like-for-like
 release builds. Treat timing as diagnostic evidence rather than a fixed test

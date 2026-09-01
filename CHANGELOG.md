@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project intends to follow [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- Dedicated ARC and ORC test tasks and stable-Nim Linux CI jobs.
+- Complete normalized-key adapter coverage and deterministic lifecycle tests
+  proving that all five prompt types close their sessions after success,
+  cancellation, EOF, and injected I/O failures.
+
+### Changed
+
+- Mark the implementation plan's test-strategy matrix complete and document
+  how each supported compiler, platform, and memory-manager configuration is
+  exercised.
+
 ## v0.1.0 - 2026-09-01
 
 ### Added
