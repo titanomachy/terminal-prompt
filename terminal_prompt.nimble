@@ -26,9 +26,15 @@ task test, "Run the terminal_prompt test suite":
   exec "nim c -r --path:src tests/test_editor.nim"
   exec "nim c -r --path:src tests/test_milestone2.nim"
   exec "nim c -r --path:src tests/test_milestone3.nim"
+  exec "nim c -r --path:src tests/test_milestone4.nim"
 
 task examples, "Check that all terminal_prompt examples compile":
   exec "nim check --path:src examples/contracts.nim"
+  exec "nim check --path:src examples/project_setup.nim"
+  exec "nim check --path:src examples/custom_runtime.nim"
+
+task benchmark, "Benchmark large interactive selection lists":
+  exec "nim c -d:release -r --path:src benchmarks/large_selection_lists.nim"
 
 task docs, "Generate terminal_prompt API documentation":
   exec "nim doc --project --index:on --outdir:build/docs --path:src src/terminal_prompt.nim"

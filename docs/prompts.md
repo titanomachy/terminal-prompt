@@ -1,8 +1,8 @@
 # Prompt behavior
 
-Milestones 2 and 3 implement the five core prompts. Each public call opens an
-isolated session, uses the configured streams and key bindings, and returns an
-answered, cancelled, or end-of-input `PromptResult`.
+The five core prompts share one result and runtime model. Each public call
+opens an isolated session, uses the configured streams and key bindings, and
+returns an answered, cancelled, or end-of-input `PromptResult`.
 
 ## Shared editing behavior
 
@@ -105,3 +105,7 @@ bindings remain available before Enter.
 Unlike single-select, multi-select accepts an empty or all-disabled choice
 list: explicit Enter returns an answered empty sequence. This keeps “choose
 zero or more” literal while preserving cancellation and EOF semantics.
+
+Runnable and compile-checked usage is available in
+[`examples/project_setup.nim`](../examples/project_setup.nim). For signatures
+and shared option types, see the [public API reference](api.md).

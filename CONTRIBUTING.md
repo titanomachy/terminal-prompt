@@ -23,6 +23,7 @@ nimble compilePackage
 nimble test
 nimble examples
 nimble docs
+nimble benchmark
 ```
 
 Compiler products and cache files are written beneath `build/`. Do not commit
@@ -55,6 +56,15 @@ Run the complete local checks before submitting a change:
 ```sh
 nimble releaseCheck
 ```
+
+CI repeats release checks with Nim 2.0.x and stable Nim on Linux, macOS, and
+Windows. Platform-specific tests should use compile-time guards only where the
+underlying operating-system facility is genuinely unavailable; behavioral
+state-machine coverage should remain portable.
+
+For selection changes, run `nimble benchmark` and compare like-for-like
+release builds. Treat timing as diagnostic evidence rather than a fixed test
+threshold because developer and CI machines vary.
 
 ## Changes and pull requests
 

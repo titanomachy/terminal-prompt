@@ -1,6 +1,6 @@
 # Session, input, and display runtime
 
-Milestone 1 provides the internal runtime used by all concrete prompt engines.
+The internal runtime is shared by all concrete prompt engines.
 These modules are intentionally absent from the public `terminal_prompt`
 facade; applications configure them through each prompt's runtime options.
 
@@ -79,3 +79,6 @@ restoration to TerminalScreen, including its Windows backend.
 
 All five concrete prompt behaviors built on this runtime are documented in
 [prompts.md](prompts.md).
+
+The cross-platform CI matrix and large-list benchmark are documented in
+[compatibility.md](compatibility.md).

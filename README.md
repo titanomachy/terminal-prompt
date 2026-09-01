@@ -4,12 +4,13 @@ Pure-Nim synchronous text, password, confirmation, single-select, and
 multi-select prompts.
 
 > [!IMPORTANT]
-> Milestones 0 through 3 are complete. All five core prompt types work in
-> interactive terminals and with redirected input/output.
+> Milestones 0 through 4 are complete. All five core prompt types work in
+> interactive terminals and with redirected input/output, with compatibility
+> coverage on Linux, macOS, and Windows.
 
 ## Status
 
-Milestones 0 through 3 are complete. They establish:
+Milestones 0 through 4 are complete. They establish:
 
 - explicit answered, cancelled, and end-of-input results;
 - options-based and convenience prompt signatures;
@@ -37,12 +38,20 @@ Milestones 0 through 3 are complete. They establish:
   test that preserves surrounding output;
 - logical-line fallback input that does not consume data intended for a later
   prompt.
+- Linux, macOS, and Windows CI on the Nim 2.0 line and current stable Nim;
+- explicit compatibility coverage for ANSI-disabled and redirected streams,
+  narrow and resized terminals, Unicode labels, and large selection lists;
+- compile-checked interactive and custom-runtime examples, a repeatable
+  large-list benchmark, migration notes, and security guidance.
 
-See [the prompt documentation](docs/prompts.md) for concrete behavior,
-[the contract documentation](docs/contracts.md) for the exception policy and
-internal boundaries, and [the runtime documentation](docs/runtime.md) for
-session modes, input actions, and redraw behavior. The remaining work is
-tracked in [the implementation plan](PLANS/PLAN1.md).
+Start with [the public API reference](docs/api.md) and
+[prompt behavior](docs/prompts.md). The [contract documentation](docs/contracts.md)
+records result and exception policy, while [runtime documentation](docs/runtime.md)
+describes session modes, input actions, and redraw behavior. Compatibility,
+migration, and credential handling are covered in
+[compatibility and performance](docs/compatibility.md),
+[migration notes](docs/migration.md), and [security guidance](docs/security.md).
+Release work remains tracked in [the implementation plan](PLANS/PLAN1.md).
 
 ## Installation
 
@@ -139,6 +148,22 @@ let options = initTextPromptOptions(
 )
 ```
 
+See [examples/project_setup.nim](examples/project_setup.nim) for a complete
+five-prompt setup flow and [examples/custom_runtime.nim](examples/custom_runtime.nim)
+for custom bindings, typed choices, and explicit result handling.
+
+## Compatibility and security
+
+CI exercises Nim 2.0.x and stable Nim on Linux, macOS, and Windows. A prompt
+uses interactive mode only when both streams are terminals and raw input plus
+ANSI output are available. Otherwise it falls back to plain line-oriented I/O,
+so pipes, files, limited consoles, and `TERM=dumb` remain usable.
+
+Password entry does not echo its answer, and password results redact their
+debug representation. The returned `.value` is still an ordinary Nim string;
+applications must not log it and cannot assume secure erasure. Read the full
+[security guidance](docs/security.md) before collecting credentials.
+
 ## Development
 
 The supported floor is Nim 2.0.0. The full local check is:
@@ -148,5 +173,7 @@ nimble releaseCheck
 ```
 
 Individual tasks are `nimble compilePackage`, `nimble test`,
-`nimble examples`, and `nimble docs`. Compiler products and generated docs are
-kept under `build/`.
+`nimble examples`, `nimble docs`, and `nimble benchmark`. Compiler products and
+generated docs are kept under `build/`. The benchmark measures viewport-backed
+selection with up to 100,000 choices; filtering remains deferred until real
+usage demonstrates that its additional interaction contract is justified.

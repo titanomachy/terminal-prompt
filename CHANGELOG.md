@@ -52,6 +52,15 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
   list behavior.
 - Deterministic Milestone 3 state-machine tests and a POSIX PTY smoke test for
   redraws that preserve output surrounding a selection prompt.
+- A Linux, macOS, and Windows CI matrix covering the Nim 2.0 release line and
+  current stable Nim.
+- Milestone 4 compatibility tests for ANSI-disabled rendering, redirected
+  workflows across all five prompts, narrow/resized terminals, Unicode labels,
+  and viewport-bounded 10,000-choice lists.
+- Compile-checked project-setup and custom-runtime examples, a public API
+  reference, migration notes, security guidance, and a compatibility guide.
+- A repeatable release-mode benchmark for interactive selection lists from 100
+  through 100,000 choices.
 
 ### Changed
 
@@ -70,5 +79,7 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
   to the latest verified session/CI fix revision.
 - Qualify confirmation label normalization to compile without an ambiguous
   `strip` overload on the supported Nim 2.0 floor.
+- Document the completed compatibility milestone and defer selection filtering
+  until benchmark or application evidence justifies its interaction cost.
 
 [Unreleased]: https://github.com/titanomachy/terminal-prompt/compare/v0.1.0...HEAD
