@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project intends to follow [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## v0.1.0 - 2026-09-01
 
 ### Added
 
@@ -86,4 +86,5 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
 - Isolate API documentation generation from the package-wide compiler output
   directory so Nim 2.0's documentation helper works on macOS ARM runners.
 
-[Unreleased]: https://github.com/titanomachy/terminal-prompt/compare/v0.1.0...HEAD
+
+`[v0.1.0]`: [https://github.com/titanomachy/terminal-prompt/releases/tag/v0.1.0](https://github.com/titanomachy/terminal-prompt/releases/tag/v0.1.0)
