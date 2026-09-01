@@ -17,12 +17,14 @@ jobs:
         nim: ["2.0.x", stable]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: jiro4989/setup-nim-action@v2
         with:
           nim-version: ${{ matrix.nim }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies
-        run: nimble install --depsOnly --accept
+        run: |
+          nimble refresh --accept
+          nimble install --depsOnly --accept
       - name: Run release checks
         run: nimble releaseCheck
