@@ -240,6 +240,8 @@ when defined(posix):
     proc openpty(master, slave: ptr cint; name: cstring;
                  settings: ptr Termios; size: pointer): cint {.
       importc, header: "<util.h>".}
+
+    var PENDIN {.importc, header: "<termios.h>".}: Cflag
   else:
     proc openpty(master, slave: ptr cint; name: cstring;
                  settings: ptr Termios; size: pointer): cint {.
@@ -298,5 +300,11 @@ when defined(posix):
       check restored.c_iflag == original.c_iflag
       check restored.c_oflag == original.c_oflag
       check restored.c_cflag == original.c_cflag
-      check restored.c_lflag == original.c_lflag
+      when defined(macosx):
+        # XNU sets PENDIN when canonical mode is restored with queued input.
+        # It is kernel-maintained state, not a setting changed by the session.
+        check (restored.c_lflag and not PENDIN) ==
+          (original.c_lflag and not PENDIN)
+      else:
+        check restored.c_lflag == original.c_lflag
       check restored.c_cc == original.c_cc
