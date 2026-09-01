@@ -22,9 +22,23 @@ jobs:
         with:
           nim-version: ${{ matrix.nim }}
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Install dependencies
+      - name: Update Nimble for Nim 2.0
+        if: matrix.nim == '2.0.x'
+        shell: bash
         run: |
           nimble refresh --accept
-          nimble install --depsOnly --accept
-      - name: Run release checks
+          nimble install nimble@0.24.1 --accept
+      - name: Install dependencies with Nim 2.0
+        if: matrix.nim == '2.0.x'
+        shell: bash
+        run: "$HOME/.nimble/bin/nimble install --depsOnly --accept"
+      - name: Run release checks with Nim 2.0
+        if: matrix.nim == '2.0.x'
+        shell: bash
+        run: "$HOME/.nimble/bin/nimble releaseCheck"
+      - name: Install dependencies with stable Nim
+        if: matrix.nim == 'stable'
+        run: nimble install --depsOnly --accept
+      - name: Run release checks with stable Nim
+        if: matrix.nim == 'stable'
         run: nimble releaseCheck
