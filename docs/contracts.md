@@ -102,7 +102,7 @@ TerminalPrompt supports Nim 2.0.0 or newer. Its initial contracts target
 TerminalScreen 0.1.0 and TerminalStyle 0.1.1. Both suite dependencies are
 declared by GitHub URL. That keeps source resolution explicit and, in
 particular, makes TerminalScreen installable before it is present in the
-central Nimble package list. TerminalScreen is pinned to commit
-`70de4d47047166871750da34ec6af02a97782ac6` while the repository has no
-`v0.1.0` tag; once that tag exists, the manifest can use a normal compatible
-version constraint.
+central Nimble package list. TerminalScreen uses an explicit `.git` URL and is
+pinned to commit `70de4d47047166871750da34ec6af02a97782ac6` while the repository
+has no `v0.1.0` tag; once that tag exists, the manifest can use a normal
+compatible version constraint.

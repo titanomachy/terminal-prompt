@@ -81,5 +81,7 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
   `strip` overload on the supported Nim 2.0 floor.
 - Document the completed compatibility milestone and defer selection filtering
   until benchmark or application evidence justifies its interaction cost.
+- Use the explicit `.git` form of the pinned TerminalScreen dependency URL so
+  fresh Nimble caches can classify and clone the exact revision.
 
 [Unreleased]: https://github.com/titanomachy/terminal-prompt/compare/v0.1.0...HEAD
