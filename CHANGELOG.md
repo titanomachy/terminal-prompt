@@ -83,5 +83,7 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
   until benchmark or application evidence justifies its interaction cost.
 - Use the explicit `.git` form of the pinned TerminalScreen dependency URL so
   fresh Nimble caches can classify and clone the exact revision.
+- Isolate API documentation generation from the package-wide compiler output
+  directory so Nim 2.0's documentation helper works on macOS ARM runners.
 
 [Unreleased]: https://github.com/titanomachy/terminal-prompt/compare/v0.1.0...HEAD

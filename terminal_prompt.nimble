@@ -37,7 +37,7 @@ task benchmark, "Benchmark large interactive selection lists":
   exec "nim c -d:release -r --path:src benchmarks/large_selection_lists.nim"
 
 task docs, "Generate terminal_prompt API documentation":
-  exec "nim doc --project --index:on --outdir:build/docs --path:src src/terminal_prompt.nim"
+  exec "nim doc --skipParentCfg:on --project --index:on --outdir:build/docs --path:src src/terminal_prompt.nim"
 
 task releaseCheck, "Run the local release-readiness checks":
   exec "nimble check"
