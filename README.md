@@ -5,10 +5,10 @@ multi-select prompts.
 
 ## Installation
 
-TerminalScreen is not yet listed in Nimble, so TerminalPrompt declares its
-pre-release API by GitHub URL. The dependency is pinned to the verified
-TerminalScreen revision containing its latest session/CI fixes, and Nimble
-resolves it automatically:
+TerminalScreen is not yet listed in Nimble, so TerminalPrompt resolves tagged
+releases starting at `0.1.0` from the canonical GitHub URL. TerminalStyle is
+resolved by its Nimble package name. Nimble installs both dependencies
+automatically:
 
 ```sh
 nimble install https://github.com/titanomachy/terminal-prompt
@@ -126,6 +126,8 @@ nimble releaseCheck
 Individual tasks are `nimble compilePackage`, `nimble test`, `nimble testArc`,
 `nimble testOrc`, `nimble testMemoryManagers`, `nimble examples`, `nimble docs`,
 and `nimble benchmark`. Compiler products and generated docs are kept under
-`build/`. The benchmark measures viewport-backed selection with up to 100,000
-choices; filtering remains deferred until real usage demonstrates that its
-additional interaction contract is justified.
+`build/`; the test suite also checks the output location, source-tree
+cleanliness, dependency constraints, and package exclusions. The benchmark
+measures viewport-backed selection with up to 100,000 choices; filtering
+remains deferred until real usage demonstrates that its additional interaction
+contract is justified.

@@ -13,12 +13,17 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
 - Complete normalized-key adapter coverage and deterministic lifecycle tests
   proving that all five prompt types close their sessions after success,
   cancellation, EOF, and injected I/O failures.
+- Build-policy regression coverage for compiler output isolation, source-tree
+  cleanliness, package exclusions, and dependency constraints.
 
 ### Changed
 
 - Mark the implementation plan's test-strategy matrix complete and document
   how each supported compiler, platform, and memory-manager configuration is
   exercised.
+- Resolve TerminalStyle by its Nimble package name and replace TerminalScreen's
+  pre-release commit pin with a compatible constraint on tagged releases
+  starting at `0.1.0`.
 
 ## v0.1.0 - 2026-09-01
 

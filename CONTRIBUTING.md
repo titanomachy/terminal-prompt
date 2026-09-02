@@ -34,8 +34,10 @@ that directory.
 
 - Keep the public API in `src/terminal_prompt.nim`; split implementations into
   focused modules under `src/terminal_prompt/`.
-- Prefer Nim's standard library. Declare suite or third-party packages through
-  Nimble with an explicit compatible version constraint.
+- Prefer Nim's standard library. Declare suite or third-party packages by their
+  Nimble package name with an explicit compatible version constraint. If a
+  package is not listed yet, use its canonical repository URL with a compatible
+  tagged version constraint.
 - Keep terminal input, state transitions, and rendering separable so tests can
   use scripted input instead of a live TTY.
 - Restore raw mode, cursor visibility, and other terminal state on every exit

@@ -11,8 +11,8 @@ skipDirs      = @["build", "PLANS"]
 # Dependencies
 
 requires "nim >= 2.0.0"
-requires "https://github.com/titanomachy/terminal-screen.git#70de4d47047166871750da34ec6af02a97782ac6"
-requires "https://github.com/titanomachy/terminal-style >= 0.1.1"
+requires "https://github.com/titanomachy/terminal-screen.git >= 0.1.0"
+requires "terminal_style >= 0.1.1"
 
 
 # Tasks
@@ -24,7 +24,8 @@ const testFiles = [
   "tests/test_milestone2.nim",
   "tests/test_milestone3.nim",
   "tests/test_milestone4.nim",
-  "tests/test_strategy.nim"
+  "tests/test_strategy.nim",
+  "tests/test_build_policy.nim"
 ]
 
 proc runTests(memoryManager = "") =
