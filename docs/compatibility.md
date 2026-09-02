@@ -14,6 +14,11 @@ interactive mode requires terminal input and output plus raw-input and ANSI
 support. Any missing capability selects line mode, including redirected
 stdin/stdout and ANSI-disabled terminals. `TERM=dumb` is treated as limited.
 
+On Windows, interactive prompts use TerminalScreen's native console-event
+input and VT output. Consoles without the required VT capability use the same
+plain line mode as other limited or redirected terminals; `0.1.0` does not
+provide a separate legacy cursor-addressing renderer.
+
 Unicode editing and truncation use TerminalStyle's terminal-cell model. Actual
 glyph shape and width can still vary with terminal emulator, font, Unicode
 version, locale, and platform console configuration. Labels remain valid UTF-8

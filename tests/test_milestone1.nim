@@ -7,6 +7,10 @@ import terminal_prompt/[display, input_engine, io, keys, session,
 
 import ./support/scripted_session
 
+proc failTerminalSetup(input, output: File;
+                       options: screen.SessionOptions): screen.TerminalSession =
+  raise newException(screen.TerminalStateError, "injected setup failure")
+
 suite "session mode selection":
   test "fully capable streams use interactive mode":
     let capabilities = PromptCapabilities(inputIsTerminal: true,
@@ -67,6 +71,25 @@ suite "session mode selection":
     expect PromptIOError:
       discard openTerminalScreenSession(
         inputTemp.cfile, outputTemp.cfile, options)
+
+  test "interactive setup failures fall back unless strict mode is requested":
+    let capabilities = PromptCapabilities(inputIsTerminal: true,
+      outputIsTerminal: true, supportsAnsi: true, supportsRawMode: true,
+      supportsResizeEvents: true)
+    let defaults = defaultPromptSessionOptions()
+    let fallback = openTerminalScreenSessionWithCapabilities(
+      stdin, stdout, defaults, capabilities, failTerminalSetup)
+    check fallback.mode == promptLineMode
+    check not fallback.capabilities.supportsAnsi
+    check not fallback.capabilities.supportsRawMode
+    check not fallback.capabilities.supportsResizeEvents
+    fallback.close()
+
+    var strict = defaults
+    strict.requireTerminal = true
+    expect PromptIOError:
+      discard openTerminalScreenSessionWithCapabilities(
+        stdin, stdout, strict, capabilities, failTerminalSetup)
 
 suite "normalized input engine":
   test "default bindings resolve shared prompt actions":

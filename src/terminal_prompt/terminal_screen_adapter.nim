@@ -10,6 +10,10 @@ import terminal_screen as screen
 import ./[keys, session, types]
 
 type
+  TerminalScreenSessionOpener* = proc(input, output: File;
+      options: screen.SessionOptions): screen.TerminalSession
+    ## Injectable TerminalScreen opener used to test setup fallback behavior.
+
   TerminalScreenPromptSession* = ref object of PromptSession
     ## Active TerminalScreen session adapted to prompt-owned contracts.
     backend: screen.TerminalSession
@@ -97,34 +101,55 @@ proc detectPromptCapabilities(input, output: File;
     supportsResizeEvents: value.supportsResizeEvents
   )
 
+proc openLinePromptSession(input, output: File;
+                           detected: PromptCapabilities): PromptSession =
+  var lineCapabilities = detected
+  lineCapabilities.supportsAnsi = false
+  lineCapabilities.supportsRawMode = false
+  lineCapabilities.supportsResizeEvents = false
+  LinePromptSession(input: input, output: output,
+    detectedCapabilities: lineCapabilities)
+
+proc openTerminalScreenSessionWithCapabilities*(
+    input, output: File;
+    options: PromptSessionOptions;
+    detected: PromptCapabilities;
+    openInteractive: TerminalScreenSessionOpener): PromptSession =
+  ## Selects and opens a prompt strategy from already detected capabilities.
+  ##
+  ## This internal seam keeps interactive setup failures deterministic in tests.
+  let selectedMode = detected.selectSessionMode(options)
+  if options.requireTerminal and
+      (not detected.inputIsTerminal or not detected.outputIsTerminal):
+    raise newException(PromptIOError,
+      "cannot open prompt session: input and output must be terminals")
+  if selectedMode == promptLineMode:
+    return openLinePromptSession(input, output, detected)
+
+  try:
+    TerminalScreenPromptSession(
+      backend: openInteractive(input, output,
+        options.toScreenOptions()),
+      output: output,
+      selectedMode: selectedMode
+    )
+  except screen.TerminalError as error:
+    if options.requireTerminal:
+      raise newException(PromptIOError,
+        "cannot open TerminalScreen prompt session: " & error.msg, error)
+    openLinePromptSession(input, output, detected)
+
 proc openTerminalScreenSession*(input: File = stdin; output: File = stdout;
                                 options = defaultPromptSessionOptions()
                                ): PromptSession =
   ## Opens TerminalScreen and selects an interactive or line-mode strategy.
   try:
     let detected = detectPromptCapabilities(input, output, options.ansiMode)
-    let selectedMode = detected.selectSessionMode(options)
-    if options.requireTerminal and
-        (not detected.inputIsTerminal or not detected.outputIsTerminal):
-      raise newException(PromptIOError,
-        "cannot open prompt session: input and output must be terminals")
-    if selectedMode == promptLineMode:
-      var lineCapabilities = detected
-      lineCapabilities.supportsAnsi = false
-      lineCapabilities.supportsRawMode = false
-      lineCapabilities.supportsResizeEvents = false
-      return LinePromptSession(input: input, output: output,
-        detectedCapabilities: lineCapabilities)
-
-    TerminalScreenPromptSession(
-      backend: screen.openSession(input, output,
-        options.toScreenOptions()),
-      output: output,
-      selectedMode: selectedMode
-    )
+    openTerminalScreenSessionWithCapabilities(input, output, options, detected,
+      screen.openSession)
   except screen.TerminalError as error:
     raise newException(PromptIOError,
-      "cannot open TerminalScreen prompt session: " & error.msg, error)
+      "cannot detect TerminalScreen prompt capabilities: " & error.msg, error)
 
 method readEvent*(session: LinePromptSession;
                   timeoutMs = -1): PromptInputEvent =

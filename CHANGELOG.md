@@ -18,6 +18,12 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- Complete the `0.1.0` definition-of-done audit, record its clean-archive
+  release-check evidence, and close the Windows fallback decision in favor of
+  native console events with VT output or capability-driven line mode.
+- Fall back to plain line mode when interactive terminal setup fails and strict
+  terminal operation was not requested, including on Windows consoles that
+  cannot enable VT output.
 - Mark the implementation plan's test-strategy matrix complete and document
   how each supported compiler, platform, and memory-manager configuration is
   exercised.
