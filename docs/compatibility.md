@@ -14,10 +14,18 @@ interactive mode requires terminal input and output plus raw-input and ANSI
 support. Any missing capability selects line mode, including redirected
 stdin/stdout and ANSI-disabled terminals. `TERM=dumb` is treated as limited.
 
+On Linux and macOS, interactive prompts clear inherited POSIX input
+translations that could discard or remap keys while preserving the terminal's
+existing output newline processing. Closing the session restores the exact
+captured termios settings.
+
 On Windows, interactive prompts use TerminalScreen's native console-event
 input and VT output. Consoles without the required VT capability use the same
 plain line mode as other limited or redirected terminals; `0.1.0` does not
 provide a separate legacy cursor-addressing renderer.
+
+TerminalPrompt preserves printable AltGr characters whether the backend reports
+them as plain text or as Ctrl+Alt-modified text after binding resolution.
 
 Unicode editing and truncation use TerminalStyle's terminal-cell model. Actual
 glyph shape and width can still vary with terminal emulator, font, Unicode

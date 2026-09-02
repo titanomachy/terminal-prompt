@@ -1,3 +1,5 @@
+## Tests text, password, and confirmation prompts built on editable lines.
+
 import std/[options, os, strutils, tempfiles, unittest]
 
 import terminal_style
@@ -27,6 +29,17 @@ suite "text prompt":
     check response.isAnswered
     check response.value == "a界c"
     check scripted.output.stripAnsi.contains("a界c")
+    check scripted.closeCount == 1
+
+  test "printable AltGr text remains insertable after binding resolution":
+    let scripted = newScriptedSession(@[
+      keyInput(keyText, text = "@",
+        modifiers = {modifierCtrl, modifierAlt}),
+      enter()
+    ], mode = promptInteractiveMode)
+    let response = runTextPrompt(PromptSession(scripted),
+      initTextPromptOptions("Email"))
+    check response.value == "@"
     check scripted.closeCount == 1
 
   test "empty submission uses a default while a placeholder is only visual":
@@ -222,8 +235,8 @@ suite "configuration and public line-mode integration":
     check labelSession.closeCount == 1
 
   test "public APIs consume redirected lines through TerminalScreen":
-    let inputTemp = createTempFile("terminal_prompt_m2_input_", ".txt")
-    let outputTemp = createTempFile("terminal_prompt_m2_output_", ".txt")
+    let inputTemp = createTempFile("terminal_prompt_line_input_", ".txt")
+    let outputTemp = createTempFile("terminal_prompt_line_output_", ".txt")
     defer:
       inputTemp.cfile.close()
       outputTemp.cfile.close()

@@ -17,7 +17,7 @@ true:
 Any missing capability selects `promptLineMode`. Line-mode sessions disable raw
 mode, cursor hiding, resize monitoring, and ANSI output. They read one logical
 line directly from the borrowed `File` instead of opening TerminalScreen's raw
-event decoder; this prevents one one-shot prompt from reading ahead into lines
+event decoder; this prevents one-shot prompts from reading ahead into lines
 intended for later prompts. Redirected input, redirected output, and `TERM=dumb`
 therefore remain usable without cursor controls or terminal mode changes.
 
@@ -72,10 +72,14 @@ geometry, and injected read/write/flush/close failures. Unit tests cover action
 resolution, redirected fallback, redraw output, and exceptional cleanup
 without process-global streams.
 
-On POSIX, a PTY integration test additionally verifies that a real Ctrl+C byte
-becomes a cancellation action and that terminal flags are restored after an
-injected exception. TerminalPrompt delegates platform-specific decoding and
-restoration to TerminalScreen, including its Windows backend.
+On POSIX, PTY integration verifies that a real Ctrl+C byte becomes a
+cancellation action, inherited input translations cannot discard Enter,
+multiline output keeps the terminal's newline behavior, and exact terminal
+flags are restored after normal completion or an injected exception.
+TerminalPrompt delegates platform-specific decoding and restoration to
+TerminalScreen. TerminalScreen's process-isolated Windows tests cover native
+Ctrl+C and AltGr input, key-repeat records, exact console-mode restoration,
+exceptions, and partial setup failures.
 
 All five concrete prompt behaviors built on this runtime are documented in
 [prompts.md](prompts.md).

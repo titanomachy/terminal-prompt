@@ -100,7 +100,18 @@ let options = initTextPromptOptions(
 
 See [examples/project_setup.nim](examples/project_setup.nim) for a complete
 five-prompt setup flow and [examples/custom_runtime.nim](examples/custom_runtime.nim)
-for custom bindings, typed choices, and explicit result handling.
+for custom bindings, typed choices, and explicit result handling. Additional
+examples cover [custom themes](examples/custom_theme.nim) and
+[redirected automation](examples/redirected_workflow.nim).
+
+## Documentation
+
+- [Public API reference](docs/api.md)
+- [Prompt behavior](docs/prompts.md)
+- [Runtime, fallback, and cleanup](docs/runtime.md)
+- [Compatibility and performance](docs/compatibility.md)
+- [Migration notes](docs/migration.md)
+- [Security guidance](docs/security.md)
 
 ## Compatibility and security
 

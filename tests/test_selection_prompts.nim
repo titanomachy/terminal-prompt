@@ -1,3 +1,5 @@
+## Tests single-select and multi-select behavior in interactive and line modes.
+
 import std/[options, os, strutils, tempfiles, unittest]
 
 import terminal_style
@@ -219,8 +221,8 @@ suite "selection configuration and public fallback":
     check multiSession.closeCount == 1
 
   test "public APIs consume separate redirected input lines":
-    let inputTemp = createTempFile("terminal_prompt_m3_input_", ".txt")
-    let outputTemp = createTempFile("terminal_prompt_m3_output_", ".txt")
+    let inputTemp = createTempFile("terminal_prompt_selection_input_", ".txt")
+    let outputTemp = createTempFile("terminal_prompt_selection_output_", ".txt")
     defer:
       inputTemp.cfile.close()
       outputTemp.cfile.close()
@@ -311,6 +313,7 @@ when defined(posix):
 
       let captured = pty.master.readAvailable()
       let plain = captured.stripAnsi
+      check "before\r\n" in captured
       check plain.find("before") >= 0
       check plain.find("? Pick: Two") > plain.find("before")
       check plain.find("after") > plain.find("? Pick: Two")

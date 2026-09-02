@@ -1,3 +1,5 @@
+## Tests session selection, input dispatch, display cleanup, and backend adaptation.
+
 import std/[options, os, tempfiles, unittest]
 
 import terminal_screen as screen

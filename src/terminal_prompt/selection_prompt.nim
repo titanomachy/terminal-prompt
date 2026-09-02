@@ -228,7 +228,8 @@ proc renderFinal[T](renderer: PromptRenderer;
   ]), spec.theme, ansi)
 
 proc insertLineKey(lineEditor: var LineEditor; key: PromptKeyEvent): bool =
-  if modifierCtrl in key.modifiers or modifierAlt in key.modifiers:
+  if (modifierCtrl in key.modifiers) xor
+      (modifierAlt in key.modifiers):
     return false
   case key.key
   of keyText, keySpace:

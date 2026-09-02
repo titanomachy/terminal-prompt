@@ -92,7 +92,11 @@ proc renderFrame(renderer: PromptRenderer; editor: LineEditor;
   renderer.render(frame(segments), spec.theme, ansi)
 
 proc insertKey(editor: var LineEditor; key: PromptKeyEvent): bool =
-  if modifierCtrl in key.modifiers or modifierAlt in key.modifiers:
+  # Native Windows input can represent AltGr text as Ctrl+Alt. Action bindings
+  # have already been resolved, so an otherwise unbound printable chord should
+  # remain insertable while lone Ctrl/Alt command chords stay ignored.
+  if (modifierCtrl in key.modifiers) xor
+      (modifierAlt in key.modifiers):
     return false
   case key.key
   of keyText, keySpace:

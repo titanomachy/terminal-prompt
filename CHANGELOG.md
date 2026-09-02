@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project intends to follow [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## v0.1.1 - 2026-09-01
 
 ### Added
 
@@ -15,9 +15,21 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
   cancellation, EOF, and injected I/O failures.
 - Build-policy regression coverage for compiler output isolation, source-tree
   cleanliness, package exclusions, and dependency constraints.
+- Runnable custom-theme and redirected-workflow examples, with automatic
+  compile-check discovery for every Nim file under `examples/`.
+
+### Fixed
+
+- Preserve printable Windows AltGr text after key-binding resolution.
+- Preserve POSIX output newline behavior while raw input is active, and prevent
+  inherited terminal translations from discarding or remapping Enter.
+- Correct stale dependency documentation and clarify the public/internal split
+  in generated module documentation.
 
 ### Changed
 
+- Rename milestone-numbered test files by responsibility: runtime, line
+  prompts, selection prompts, and cross-platform compatibility.
 - Complete the `0.1.0` definition-of-done audit, record its clean-archive
   release-check evidence, and close the Windows fallback decision in favor of
   native console events with VT output or capability-driven line mode.

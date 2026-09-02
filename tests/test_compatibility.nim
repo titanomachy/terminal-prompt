@@ -1,3 +1,5 @@
+## Tests cross-platform rendering, Unicode, scale, and redirected workflows.
+
 import std/[options, os, strutils, tempfiles, unicode, unittest]
 
 import terminal_style
@@ -10,7 +12,7 @@ import ./support/scripted_session
 proc enter(): PromptInputEvent =
   keyInput(keyEnter)
 
-suite "Milestone 4 compatibility":
+suite "cross-platform compatibility":
   test "ANSI-disabled semantic rendering preserves only plain content":
     let renderer = newSemanticRenderer()
     let rendered = renderer.render(frame(@[
@@ -57,8 +59,8 @@ suite "Milestone 4 compatibility":
     check scripted.output.len < 2_000
 
   test "all public prompts share a plain redirected-stream workflow":
-    let inputTemp = createTempFile("terminal_prompt_m4_input_", ".txt")
-    let outputTemp = createTempFile("terminal_prompt_m4_output_", ".txt")
+    let inputTemp = createTempFile("terminal_prompt_compat_input_", ".txt")
+    let outputTemp = createTempFile("terminal_prompt_compat_output_", ".txt")
     defer:
       inputTemp.cfile.close()
       outputTemp.cfile.close()

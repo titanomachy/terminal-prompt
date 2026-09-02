@@ -5,6 +5,10 @@ the five prompt procedures, their option constructors, result helpers, choices,
 themes, and key-binding types. Internal session and renderer modules are not
 part of the compatibility promise.
 
+`nimble docs` also generates pages for those internal modules as maintainer
+reference material. Their presence in generated documentation does not make
+them part of the public facade or compatibility promise.
+
 ## Prompt procedures
 
 | Prompt | Convenience form | Options form | Answer type |
