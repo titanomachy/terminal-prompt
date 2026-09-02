@@ -5,10 +5,7 @@ multi-select prompts.
 
 ## Installation
 
-TerminalScreen is not yet listed in Nimble, so TerminalPrompt resolves tagged
-releases starting at `0.1.0` from the canonical GitHub URL. TerminalStyle is
-resolved by its Nimble package name. Nimble installs both dependencies
-automatically:
+Nimble installs both dependencies [TerminalScreen](https://github.com/titanomachy/terminal-screen) and [TerminalStyle](https://github.com/titanomachy/terminal-screen) automatically:
 
 ```sh
 nimble install https://github.com/titanomachy/terminal-prompt
