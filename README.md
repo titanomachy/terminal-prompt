@@ -3,9 +3,18 @@
 Pure-Nim synchronous text, password, confirmation, single-select, and
 multi-select prompts.
 
+## Platform support
+`terminal_prompt` has been tested on Linux and Windows. On Windows I tested with the Terminal app which comes with Windows, other terminals may or may not work. It should also work on macOS through its standard POSIX terminal and ANSI/VT support, but macOS has not yet been tested directly.
+
+## Requirements
+- Nim 2.0.0 or newer
+- [terminal_style](https://github.com/titanomachy/terminal-style) 0.1.1 or newer
+- [terminal_screen](https://github.com/titanomachy/terminal-screen) 0.1.1 or newer
+- No runtime dependencies beyond terminal_style
+
 ## Installation
 
-Nimble installs both dependencies [TerminalScreen](https://github.com/titanomachy/terminal-screen) and [TerminalStyle](https://github.com/titanomachy/terminal-screen) automatically:
+Nimble installs both dependencies [terminal_style](https://github.com/titanomachy/terminal-screen) and [terminal_screen](https://github.com/titanomachy/terminal-screen) automatically:
 
 ```sh
 nimble install https://github.com/titanomachy/terminal-prompt
