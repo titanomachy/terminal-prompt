@@ -97,7 +97,6 @@ defaults are the unmodified text keys `a` and `c`.
 
 ## Dependency versions
 
-TerminalPrompt supports Nim 2.0.0 or newer. It requires tagged TerminalScreen
-releases starting at 0.1.0 through the canonical GitHub `.git` URL and resolves
-TerminalStyle 0.1.1 or newer by its Nimble package name. Both use compatible
-version constraints in `terminal_prompt.nimble`.
+TerminalPrompt supports Nim 2.0.0 or newer. It resolves TerminalScreen and
+TerminalStyle by their Nimble package names, with compatible constraints
+starting at 0.1.1 in `terminal_prompt.nimble`.

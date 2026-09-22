@@ -36,7 +36,9 @@ suite "Nimble and build policy":
 
   test "dependencies use compatible tagged constraints":
     let packageMetadata = readFile(repositoryDir / "terminal_prompt.nimble")
+    check "version       = \"0.1.2\"" in packageMetadata
     check "requires \"nim >= 2.0.0\"" in packageMetadata
-    check "requires \"https://github.com/titanomachy/terminal-screen.git >= 0.1.0\"" in packageMetadata
+    check "requires \"terminal_screen >= 0.1.1\"" in packageMetadata
     check "requires \"terminal_style >= 0.1.1\"" in packageMetadata
+    check "github.com/titanomachy/terminal-screen" notin packageMetadata
     check "#70de4d47047166871750da34ec6af02a97782ac6" notin packageMetadata

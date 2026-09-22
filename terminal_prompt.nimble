@@ -2,7 +2,7 @@ import std/[algorithm, os, strutils]
 
 # Package
 
-version       = "0.1.1"
+version       = "0.1.2"
 author        = "titanomachy"
 description   = "Pure-Nim terminal input boxes, password masking, single-select, multi-select, and confirm prompts."
 license       = "MIT"

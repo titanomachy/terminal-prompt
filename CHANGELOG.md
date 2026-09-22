@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project intends to follow [Semantic Versioning](https://semver.org/).
 
+## v0.1.2 - 2026-09-22
+
+### Changed
+
+- Resolve TerminalScreen by its Nimble package name with a compatible `>= 0.1.1`
+  constraint, matching TerminalStyle and avoiding a second manifest under the
+  already released `0.1.1` package version.
+
 ## v0.1.1 - 2026-09-01
 
 ### Added

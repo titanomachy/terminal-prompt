@@ -7,10 +7,11 @@ multi-select prompts.
 `terminal_prompt` has been tested on Linux and Windows. On Windows I tested with the Terminal app which comes with Windows, other terminals may or may not work. It should also work on macOS through its standard POSIX terminal and ANSI/VT support, but macOS has not yet been tested directly.
 
 ## Requirements
+
 - Nim 2.0.0 or newer
 - [terminal_style](https://github.com/titanomachy/terminal-style) 0.1.1 or newer
 - [terminal_screen](https://github.com/titanomachy/terminal-screen) 0.1.1 or newer
-- No runtime dependencies beyond terminal_style
+- No runtime dependencies beyond `terminal_style` and `terminal_screen`
 
 ## Installation
 
