@@ -41,6 +41,12 @@ Password prompts never render entered text. The configured mask is repeated
 once per terminal grapheme; an empty mask enables no-feedback entry. A mask may
 contain at most one terminal grapheme and cannot contain control characters.
 
+Terminal echo is suppressed even with redirected output or limited terminals
+such as `TERM=dumb`. These plain-output prompts provide no feedback during
+entry and use TerminalScreen to restore input mode on exit. If non-echoing
+terminal input cannot be enabled, the prompt raises `PromptIOError` before
+reading the password. Input redirected from a file or pipe uses line reads.
+
 Successful `PromptResult[string]` values still provide the password through
 `.value`, but their `$` debug representation prints `[redacted]`. Validator
 messages have exact occurrences of the submitted password replaced with

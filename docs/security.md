@@ -1,9 +1,14 @@
 # Security guidance
 
-TerminalPrompt prevents password text from being echoed by its own prompt
-renderer. In interactive mode it displays only the configured mask (or no
-feedback); in line mode it still omits the answer. Password results also print
-`[redacted]` through `$`.
+TerminalPrompt suppresses terminal echo for password input, including when
+output is redirected or ANSI support is unavailable. Its renderer displays only
+the configured mask (or no feedback) and never the password. Password results
+also print `[redacted]` through `$`.
+
+Plain-output password prompts with terminal input use TerminalScreen's raw
+input mode without ANSI output. If that mode cannot be enabled, `askPassword`
+raises `PromptIOError` before reading input. Redirected password input continues
+to use ordinary line reads without terminal mode changes.
 
 These protections are deliberately narrow. A caller can access `.value`, and
 ordinary Nim strings may be copied and are not guaranteed to be zeroed after

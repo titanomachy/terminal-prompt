@@ -110,11 +110,38 @@ proc openLinePromptSession(input, output: File;
   LinePromptSession(input: input, output: output,
     detectedCapabilities: lineCapabilities)
 
+proc openFallbackPromptSession(input, output: File;
+                               options: PromptSessionOptions;
+                               detected: PromptCapabilities;
+                               openInteractive: TerminalScreenSessionOpener;
+                               secretInput: bool): PromptSession =
+  if not secretInput or not detected.inputIsTerminal:
+    return openLinePromptSession(input, output, detected)
+
+  # Password input still needs echo suppression when rendering is plain. The
+  # backend owns raw input and restoration without requiring VT/ANSI output.
+  var backendOptions = options.toScreenOptions()
+  backendOptions.rawMode = true
+  backendOptions.ansiMode = screen.ansiNever
+  backendOptions.hideCursor = false
+  backendOptions.monitorResize = false
+  backendOptions.requireTerminal = false
+  try:
+    TerminalScreenPromptSession(
+      backend: openInteractive(input, output, backendOptions),
+      output: output,
+      selectedMode: promptLineMode
+    )
+  except screen.TerminalError as error:
+    raise newException(PromptIOError,
+      "cannot disable terminal echo for password input", error)
+
 proc openTerminalScreenSessionWithCapabilities*(
     input, output: File;
     options: PromptSessionOptions;
     detected: PromptCapabilities;
-    openInteractive: TerminalScreenSessionOpener): PromptSession =
+    openInteractive: TerminalScreenSessionOpener;
+    secretInput = false): PromptSession =
   ## Selects and opens a prompt strategy from already detected capabilities.
   ##
   ## This internal seam keeps interactive setup failures deterministic in tests.
@@ -124,7 +151,8 @@ proc openTerminalScreenSessionWithCapabilities*(
     raise newException(PromptIOError,
       "cannot open prompt session: input and output must be terminals")
   if selectedMode == promptLineMode:
-    return openLinePromptSession(input, output, detected)
+    return openFallbackPromptSession(input, output, options, detected,
+      openInteractive, secretInput)
 
   try:
     TerminalScreenPromptSession(
@@ -137,16 +165,19 @@ proc openTerminalScreenSessionWithCapabilities*(
     if options.requireTerminal:
       raise newException(PromptIOError,
         "cannot open TerminalScreen prompt session: " & error.msg, error)
-    openLinePromptSession(input, output, detected)
+    openFallbackPromptSession(input, output, options, detected,
+      openInteractive, secretInput)
 
 proc openTerminalScreenSession*(input: File = stdin; output: File = stdout;
-                                options = defaultPromptSessionOptions()
+                                options = defaultPromptSessionOptions();
+                                secretInput = false
                                ): PromptSession =
   ## Opens TerminalScreen and selects an interactive or line-mode strategy.
+  ## Secret terminal input suppresses echo even when output must stay plain.
   try:
     let detected = detectPromptCapabilities(input, output, options.ansiMode)
     openTerminalScreenSessionWithCapabilities(input, output, options, detected,
-      screen.openSession)
+      screen.openSession, secretInput)
   except screen.TerminalError as error:
     raise newException(PromptIOError,
       "cannot detect TerminalScreen prompt capabilities: " & error.msg, error)

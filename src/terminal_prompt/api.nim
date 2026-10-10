@@ -30,7 +30,7 @@ proc askPassword*(options: PasswordPromptOptions): PromptResult[string] =
   ## Runs a secret text prompt using explicit options.
   options.validatePasswordOptions()
   runPasswordPrompt(openTerminalScreenSession(options.runtime.input,
-    options.runtime.output), options)
+    options.runtime.output, secretInput = true), options)
 
 proc askPassword*(message: string; mask = "*"; helpText = "";
                   validator: Validator[string] = nil;

@@ -19,7 +19,14 @@ mode, cursor hiding, resize monitoring, and ANSI output. They read one logical
 line directly from the borrowed `File` instead of opening TerminalScreen's raw
 event decoder; this prevents one-shot prompts from reading ahead into lines
 intended for later prompts. Redirected input, redirected output, and `TERM=dumb`
-therefore remain usable without cursor controls or terminal mode changes.
+therefore remain usable without cursor controls.
+
+Password prompts are an exception to line mode's raw-input rule when input is
+still a terminal. They use TerminalScreen's raw event reader to suppress echo,
+with ANSI output, cursor hiding, and resize monitoring disabled. This also
+supports Windows consoles without VT output. TerminalScreen restores input
+state when the prompt closes; setup failure raises `PromptIOError` before any
+password is read. Redirected password input uses the ordinary line reader.
 
 Fallback is the default: `defaultPromptSessionOptions()` sets
 `requireTerminal` to `false`. Internal callers can set it to `true` when a
@@ -75,7 +82,10 @@ without process-global streams.
 On POSIX, PTY integration verifies that a real Ctrl+C byte becomes a
 cancellation action, inherited input translations cannot discard Enter,
 multiline output keeps the terminal's newline behavior, and exact terminal
-flags are restored after normal completion or an injected exception.
+flags are restored after normal completion or an injected exception. Password
+fallback tests additionally verify echo suppression and restoration after
+success, validation retry, cancellation, EOF, and validator exceptions, with
+both plain terminal output and redirected output.
 TerminalPrompt delegates platform-specific decoding and restoration to
 TerminalScreen. TerminalScreen's process-isolated Windows tests cover native
 Ctrl+C and AltGr input, key-repeat records, exact console-mode restoration,

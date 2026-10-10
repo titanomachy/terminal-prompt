@@ -12,6 +12,12 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
 - README contents, quick start, and API overview with six runnable examples,
   terminal screenshots, animated GIFs, and reproducible source recordings.
 
+### Fixed
+
+- Suppress terminal echo for password prompts when output is redirected or
+  ANSI is unavailable, restoring input mode on exit and failing before input
+  when echo suppression cannot be enabled.
+
 ## v0.1.2 - 2026-09-22
 
 ### Changed

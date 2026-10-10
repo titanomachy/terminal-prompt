@@ -1,10 +1,11 @@
 ## Tests session selection, input dispatch, display cleanup, and backend adaptation.
 
-import std/[options, os, tempfiles, unittest]
+import std/[options, os, strutils, tempfiles, unittest]
 
 import terminal_screen as screen
 
-import terminal_prompt/[display, input_engine, io, keys, session,
+import terminal_prompt
+import terminal_prompt/[display, input_engine, io, keys, password_prompt, session,
   terminal_screen_adapter, types]
 
 import ./support/scripted_session
@@ -92,6 +93,31 @@ suite "session mode selection":
     expect PromptIOError:
       discard openTerminalScreenSessionWithCapabilities(
         stdin, stdout, strict, capabilities, failTerminalSetup)
+
+  test "secret terminal input never falls back to echoing after setup fails":
+    for ansi in [false, true]:
+      let capabilities = PromptCapabilities(inputIsTerminal: true,
+        outputIsTerminal: true, supportsAnsi: ansi, supportsRawMode: true)
+      expect PromptIOError:
+        discard openTerminalScreenSessionWithCapabilities(
+          stdin, stdout, defaultPromptSessionOptions(), capabilities,
+          failTerminalSetup, secretInput = true)
+
+  test "secret redirected input still uses ordinary line reads":
+    let inputTemp = createTempFile("terminal_prompt_secret_input_", ".txt")
+    let outputTemp = createTempFile("terminal_prompt_secret_output_", ".txt")
+    defer:
+      inputTemp.cfile.close()
+      outputTemp.cfile.close()
+      removeFile(inputTemp.path)
+      removeFile(outputTemp.path)
+    inputTemp.cfile.write("test-secret\nlater\n")
+    inputTemp.cfile.setFilePos(0)
+    let promptSession = openTerminalScreenSession(inputTemp.cfile,
+      outputTemp.cfile, secretInput = true)
+    check runPasswordPrompt(promptSession,
+      initPasswordPromptOptions("Password")).value == "test-secret"
+    check inputTemp.cfile.readLine() == "later"
 
 suite "normalized input engine":
   test "default bindings resolve shared prompt actions":
@@ -299,7 +325,135 @@ when defined(posix):
     pty.slave.close()
     discard posix.close(pty.master)
 
+  proc readAvailable(fd: cint): string =
+    let flags = fcntl(fd, F_GETFL, 0)
+    discard fcntl(fd, F_SETFL, flags or O_NONBLOCK)
+    var buffer: array[4096, char]
+    while true:
+      let count = posix.read(fd, addr buffer[0], buffer.len)
+      if count <= 0:
+        break
+      for index in 0 ..< count:
+        result.add buffer[index]
+
   suite "POSIX prompt session integration":
+    test "public password fallback suppresses echo for dumb and redirected output":
+      let originalTerm = getEnv("TERM")
+      let hadTerm = existsEnv("TERM")
+      defer:
+        if hadTerm: putEnv("TERM", originalTerm)
+        else: delEnv("TERM")
+      for redirectedOutput in [false, true]:
+        putEnv("TERM", if redirectedOutput: "xterm" else: "dumb")
+        var pty = openPty()
+        let outputTemp = createTempFile("terminal_prompt_public_password_", ".txt")
+        defer:
+          pty.close()
+          outputTemp.cfile.close()
+          removeFile(outputTemp.path)
+        let slaveFd = cint(pty.slave.getFileHandle())
+        var original: Termios
+        check tcGetAttr(slaveFd, addr original) == 0
+        check (original.c_lflag and ECHO) != 0
+        let child = fork()
+        if child < 0:
+          raiseOSError(osLastError())
+        if child == 0:
+          # Wait until askPassword owns terminal state before sending input.
+          # On regression, still send a line after the timeout so the test fails
+          # without leaving the parent blocked in a canonical read.
+          var echoSuppressed = false
+          for _ in 0 ..< 200:
+            var mode: Termios
+            if tcGetAttr(slaveFd, addr mode) == 0 and
+                (mode.c_lflag and ECHO) == 0:
+              echoSuppressed = true
+              break
+            discard usleep(10_000)
+          let bytes = "test-secret\n"
+          let written = posix.write(pty.master, unsafeAddr bytes[0], bytes.len)
+          exitnow(if echoSuppressed and written == bytes.len: 0 else: 1)
+        let output = if redirectedOutput: outputTemp.cfile else: pty.slave
+        let response = askPassword(initPasswordPromptOptions("Password",
+          runtime = defaultRuntimeOptions(pty.slave, output)))
+        check response.value == "test-secret"
+        var childStatus: cint
+        check waitpid(child, childStatus, 0) == child
+        check childStatus == 0
+        var restored: Termios
+        check tcGetAttr(slaveFd, addr restored) == 0
+        check (restored.c_lflag and ECHO) == (original.c_lflag and ECHO)
+        outputTemp.cfile.flushFile()
+        let captured = pty.master.readAvailable() & readFile(outputTemp.path)
+        check "test-secret" notin captured
+        check '\e' notin captured
+
+    test "plain password input suppresses echo and restores modes on every exit":
+      for redirectedOutput in [false, true]:
+        for outcome in ["answer", "retry", "cancel", "eof", "exception"]:
+          var pty = openPty()
+          let outputTemp = createTempFile("terminal_prompt_password_", ".txt")
+          defer:
+            pty.close()
+            outputTemp.cfile.close()
+            removeFile(outputTemp.path)
+          let slaveFd = cint(pty.slave.getFileHandle())
+          var original: Termios
+          check tcGetAttr(slaveFd, addr original) == 0
+          original.c_lflag = original.c_lflag or Cflag(ECHO or ECHONL)
+          check tcSetAttr(slaveFd, TCSANOW, addr original) == 0
+          var options = defaultPromptSessionOptions()
+          if not redirectedOutput:
+            options.ansiMode = promptAnsiNever
+          let output = if redirectedOutput: outputTemp.cfile else: pty.slave
+          let promptSession = openTerminalScreenSession(pty.slave, output,
+            options, secretInput = true)
+          defer: promptSession.close()
+          check promptSession.mode == promptLineMode
+          var raw: Termios
+          check tcGetAttr(slaveFd, addr raw) == 0
+          check (raw.c_lflag and Cflag(ECHO or ECHONL)) == 0
+          let bytes = case outcome
+            of "cancel": "partial-secret\x03"
+            of "eof": "\x04"
+            of "retry": "rejected-secret\rtest-secret\r"
+            else: "test-secret\r"
+          check posix.write(pty.master, unsafeAddr bytes[0], bytes.len) ==
+            bytes.len
+          let validator: Validator[string] = proc(value: string): string =
+            if outcome == "exception":
+              raise newException(ValueError, "rejected " & value)
+            if value == "rejected-secret": "Try again" else: ""
+          let passwordOptions = initPasswordPromptOptions("Password",
+            validator = validator)
+          if outcome == "exception":
+            expect PromptError:
+              discard runPasswordPrompt(promptSession, passwordOptions)
+          else:
+            let response = runPasswordPrompt(promptSession, passwordOptions)
+            case outcome
+            of "cancel": check response.isCancelled
+            of "eof": check response.isEndOfInput
+            else: check response.value == "test-secret"
+
+          var restored: Termios
+          check tcGetAttr(slaveFd, addr restored) == 0
+          check restored.c_iflag == original.c_iflag
+          check restored.c_oflag == original.c_oflag
+          check restored.c_cflag == original.c_cflag
+          when defined(macosx):
+            check (restored.c_lflag and not PENDIN) ==
+              (original.c_lflag and not PENDIN)
+          else:
+            check restored.c_lflag == original.c_lflag
+          check restored.c_cc == original.c_cc
+          outputTemp.cfile.flushFile()
+          let captured = pty.master.readAvailable() & readFile(outputTemp.path)
+          check "secret" notin captured
+          check '\e' notin captured
+          if outcome == "retry":
+            check "Try again" in captured
+
     test "adapter decodes cancellation and restores raw mode after failure":
       var pty = openPty()
       defer: pty.close()
