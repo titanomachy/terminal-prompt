@@ -1,0 +1,7 @@
+{"version":3,"term":{"cols":64,"rows":4},"timestamp":1791627306,"command":"python3 scripts/regenerate_media.py --capture prompt_customization","title":"TerminalPrompt: prompt_customization","env":{"COLORTERM":"truecolor","TERM":"xterm-256color"}}
+[0.060, "o", "\u001b[1;38;2;120;200;255m? Display name\u001b[0m\u001b[2m (Ctrl+S also submits)\u001b[0m: "]
+[0.803, "o", "\r\u001b[2K\u001b[1;38;2;120;200;255m? Display name\u001b[0m\u001b[2m (Ctrl+S also submits)\u001b[0m: \u001b[92mA\u001b[0m"]
+[0.201, "o", "\r\u001b[2K\u001b[1;38;2;120;200;255m? Display name\u001b[0m\u001b[2m (Ctrl+S also submits)\u001b[0m: \u001b[92mAd\u001b[0m"]
+[0.201, "o", "\r\u001b[2K\u001b[1;38;2;120;200;255m? Display name\u001b[0m\u001b[2m (Ctrl+S also submits)\u001b[0m: \u001b[92mAda\u001b[0m"]
+[0.905, "o", "\r\u001b[2K\u001b[1;38;2;120;200;255m? Display name\u001b[0m\u001b[2m (Ctrl+S also submits)\u001b[0m: \u001b[92mAda\u001b[0m\r\nHello, Ada\r\n"]
+[0.009, "x", "0"]

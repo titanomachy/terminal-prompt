@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project intends to follow [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- README contents, quick start, and API overview with six runnable examples,
+  terminal screenshots, animated GIFs, and reproducible source recordings.
+
 ## v0.1.2 - 2026-09-22
 
 ### Changed

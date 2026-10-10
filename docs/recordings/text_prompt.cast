@@ -1,0 +1,12 @@
+{"version":3,"term":{"cols":64,"rows":4},"timestamp":1791627272,"command":"python3 scripts/regenerate_media.py --capture text_prompt","title":"TerminalPrompt: text_prompt","env":{"COLORTERM":"truecolor","TERM":"xterm-256color"}}
+[0.063, "o", "\u001b[1;36m? Project name\u001b[0m: \u001b[2mmy-project\u001b[0m\u001b[10D"]
+[0.804, "o", "\r\u001b[2K\u001b[31m! Enter a project name.\u001b[0m\r\n\u001b[1;36m? Project name\u001b[0m: \u001b[2mmy-project\u001b[0m\u001b[10D"]
+[1.004, "o", "\r\u001b[2K\u001b[1A\r\u001b[2K\u001b[31m! Enter a project name.\u001b[0m\r\n\u001b[1;36m? Project name\u001b[0m: \u001b[32mn\u001b[0m"]
+[0.161, "o", "\r\u001b[2K\u001b[1A\r\u001b[2K\u001b[31m! Enter a project name.\u001b[0m\r\n\u001b[1;36m? Project name\u001b[0m: \u001b[32mni\u001b[0m"]
+[0.160, "o", "\r\u001b[2K\u001b[1A\r\u001b[2K\u001b[31m! Enter a project name.\u001b[0m\r\n\u001b[1;36m? Project name\u001b[0m: \u001b[32mnim\u001b[0m"]
+[0.161, "o", "\r\u001b[2K\u001b[1A\r\u001b[2K\u001b[31m! Enter a project name.\u001b[0m\r\n\u001b[1;36m? Project name\u001b[0m: \u001b[32mnim-\u001b[0m"]
+[0.160, "o", "\r\u001b[2K\u001b[1A\r\u001b[2K\u001b[31m! Enter a project name.\u001b[0m\r\n\u001b[1;36m? Project name\u001b[0m: \u001b[32mnim-a\u001b[0m"]
+[0.161, "o", "\r\u001b[2K\u001b[1A\r\u001b[2K\u001b[31m! Enter a project name.\u001b[0m\r\n\u001b[1;36m? Project name\u001b[0m: \u001b[32mnim-ap\u001b[0m"]
+[0.161, "o", "\r\u001b[2K\u001b[1A\r\u001b[2K\u001b[31m! Enter a project name.\u001b[0m\r\n\u001b[1;36m? Project name\u001b[0m: \u001b[32mnim-app\u001b[0m"]
+[0.903, "o", "\r\u001b[2K\u001b[1A\r\u001b[2K\u001b[1;36m? Project name\u001b[0m: \u001b[32mnim-app\u001b[0m\r\nCreating nim-app\r\n"]
+[0.007, "x", "0"]

@@ -1,0 +1,7 @@
+{"version":3,"term":{"cols":64,"rows":3},"timestamp":1791627291,"command":"python3 scripts/regenerate_media.py --capture confirm_prompt","title":"TerminalPrompt: confirm_prompt","env":{"TERM":"xterm-256color","COLORTERM":"truecolor"}}
+[0.059, "o", "\u001b[1;36m? Create project?\u001b[0m\u001b[2m [Yes/No, default: No]\u001b[0m: "]
+[0.803, "o", "\r\u001b[2K\u001b[1;36m? Create project?\u001b[0m\u001b[2m [Yes/No, default: No]\u001b[0m: \u001b[32my\u001b[0m"]
+[0.202, "o", "\r\u001b[2K\u001b[1;36m? Create project?\u001b[0m\u001b[2m [Yes/No, default: No]\u001b[0m: \u001b[32mye\u001b[0m"]
+[0.200, "o", "\r\u001b[2K\u001b[1;36m? Create project?\u001b[0m\u001b[2m [Yes/No, default: No]\u001b[0m: \u001b[32myes\u001b[0m"]
+[0.903, "o", "\r\u001b[2K\u001b[1;36m? Create project?\u001b[0m\u001b[2m [Yes/No, default: No]\u001b[0m: \u001b[32mYes\u001b[0m\r\nCreating project.\r\n"]
+[0.008, "x", "0"]
