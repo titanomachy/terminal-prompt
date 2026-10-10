@@ -17,6 +17,8 @@ and this project intends to follow [Semantic Versioning](https://semver.org/).
 - Suppress terminal echo for password prompts when output is redirected or
   ANSI is unavailable, restoring input mode on exit and failing before input
   when echo suppression cannot be enabled.
+- Retry malformed line input without submitting empty values or defaults,
+  and accept the documented tab separators in line-mode selection prompts.
 
 ## v0.1.2 - 2026-09-22
 

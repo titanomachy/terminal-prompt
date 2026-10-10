@@ -23,6 +23,17 @@ proc cancel(): PromptInputEvent =
   keyInput(keyEscape)
 
 suite "single-select prompt":
+  test "malformed line input retries without submitting the default":
+    let scripted = newScriptedSession(@[
+      text("2\xff"), enter(), text("2"), enter()
+    ])
+    check runSelectPrompt(PromptSession(scripted),
+      initSelectPromptOptions("Pick", @[
+        choice("One", 1), choice("Two", 2)
+      ])).value == 2
+    check "! Enter valid UTF-8 without control characters." in scripted.output
+    check scripted.closeCount == 1
+
   test "navigation skips disabled choices and wraps by default":
     let scripted = newScriptedSession(@[down(), down(), enter()],
       mode = promptInteractiveMode)
@@ -104,6 +115,29 @@ suite "single-select prompt":
       initSelectPromptOptions("Pick", @[choice("One", 1)])).isEndOfInput
 
 suite "multi-select prompt":
+  test "line mode accepts tab separated indices and rejects other controls":
+    let scripted = newScriptedSession(@[
+      text("1\t3\e"), enter(), text("1\t3"), enter()
+    ])
+    check runMultiSelectPrompt(PromptSession(scripted),
+      initMultiSelectPromptOptions("Features", @[
+        choice("A", "a"), choice("B", "b"), choice("C", "c")
+      ], initiallySelected = @[1])).value == @["a", "c"]
+    check "! Enter valid UTF-8 without control characters." in scripted.output
+    check scripted.closeCount == 1
+
+  test "malformed line retries preserve cancellation and EOF":
+    for ending in [cancel(), endInput()]:
+      let scripted = newScriptedSession(@[text("1\xff"), enter(), ending])
+      let response = runMultiSelectPrompt(PromptSession(scripted),
+        initMultiSelectPromptOptions("Features", @[choice("A", "a")],
+          initiallySelected = @[0]))
+      if ending.kind == inputEndOfInput:
+        check response.isEndOfInput
+      else:
+        check response.isCancelled
+      check scripted.closeCount == 1
+
   test "toggle, select-all, clear, and explicit submission compose":
     let scripted = newScriptedSession(@[
       down(), keyInput(keySpace, text = " "), text("a"), text("c"),
@@ -197,6 +231,30 @@ suite "multi-select prompt":
       ])).isEndOfInput
 
 suite "selection configuration and public fallback":
+  test "public selection handles malformed and tab separated whole lines":
+    let inputTemp = createTempFile("terminal_prompt_selection_retry_", ".txt")
+    let outputTemp = createTempFile("terminal_prompt_selection_retry_", ".txt")
+    defer:
+      inputTemp.cfile.close()
+      outputTemp.cfile.close()
+      removeFile(inputTemp.path)
+      removeFile(outputTemp.path)
+    inputTemp.cfile.write("2\xff\n2\n1\t3\n1\xff3\n2\nlater\n")
+    inputTemp.cfile.setFilePos(0)
+    let runtime = defaultRuntimeOptions(inputTemp.cfile, outputTemp.cfile)
+    let choices = @[choice("A", "a"), choice("B", "b"), choice("C", "c")]
+    check askSelect(initSelectPromptOptions("Pick", choices,
+      runtime = runtime)).value == "b"
+    check askMultiSelect(initMultiSelectPromptOptions("Features", choices,
+      initiallySelected = @[1], runtime = runtime)).value == @["a", "c"]
+    check askMultiSelect(initMultiSelectPromptOptions("Features", choices,
+      initiallySelected = @[0], runtime = runtime)).value == @["b"]
+    check inputTemp.cfile.readLine() == "later"
+    outputTemp.cfile.flushFile()
+    let output = readFile(outputTemp.path)
+    check output.count("! Enter valid UTF-8 without control characters.") == 2
+    check '\e' notin output
+
   test "invalid defaults and empty single-select lists close direct sessions":
     let emptySession = newScriptedSession()
     expect PromptConfigurationError:

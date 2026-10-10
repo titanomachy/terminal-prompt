@@ -6,6 +6,9 @@ import terminal_style
 
 import ./[display, editor, input_engine, io, keys, render, session, types]
 
+const InvalidLineInputMessage* = "Enter valid UTF-8 without control characters."
+  ## Generic retry message that never includes rejected input or secrets.
+
 type
   LineSubmission* = object
     ## Decision returned when an editable prompt is submitted.
@@ -102,10 +105,7 @@ proc insertKey(editor: var LineEditor; key: PromptKeyEvent): bool =
   of keyText, keySpace:
     if key.text.len == 0:
       return false
-    try:
-      editor.insert(key.text)
-    except ValueError:
-      false
+    editor.insert(key.text)
   else:
     false
 
@@ -129,6 +129,7 @@ proc runLinePrompt*(session: PromptSession; spec: LinePromptSpec;
       var
         editor = initLineEditor()
         validationError = ""
+        rejectedInput = false
       display.redraw(renderer.renderFrame(editor, spec, validationError, ansi))
 
       while true:
@@ -136,13 +137,25 @@ proc runLinePrompt*(session: PromptSession; spec: LinePromptSpec;
         var
           redraw = false
           lineRedraw = false
+        template insertInput(key: PromptKeyEvent) =
+          try:
+            redraw = editor.insertKey(key)
+          except ValueError:
+            # A line read is atomic: losing it must not turn its pending Enter
+            # into an empty/default submission. Interactive bad keys stay ignored.
+            if promptMode == promptLineMode:
+              rejectedInput = true
         case event.kind
         of engineAction:
           case event.action
           of actionCancel:
             return cancelled[string]()
           of actionSubmit:
-            let decision = submitter(editor.value)
+            let decision = if rejectedInput:
+                retryLine(InvalidLineInputMessage)
+              else:
+                submitter(editor.value)
+            rejectedInput = false
             if decision.accepted:
               display.finish(renderer.renderFrame(editor, spec, "",
                 ansi = ansi,
@@ -166,9 +179,9 @@ proc runLinePrompt*(session: PromptSession; spec: LinePromptSpec;
           of actionDeleteForward:
             redraw = editor.deleteForward()
           of actionToggle:
-            redraw = editor.insertKey(event.actionKey)
+            insertInput(event.actionKey)
           of actionSelectAll, actionClearSelection:
-            redraw = editor.insertKey(event.actionKey)
+            insertInput(event.actionKey)
           of actionMoveUp, actionMoveDown:
             discard
         of engineKey:
@@ -177,7 +190,7 @@ proc runLinePrompt*(session: PromptSession; spec: LinePromptSpec;
               return endOfInput[string]()
             redraw = editor.deleteForward()
           else:
-            redraw = editor.insertKey(event.key)
+            insertInput(event.key)
         of engineResize:
           display.updateSize(event.size)
           redraw = true

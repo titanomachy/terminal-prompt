@@ -28,6 +28,12 @@ supports Windows consoles without VT output. TerminalScreen restores input
 state when the prompt closes; setup failure raises `PromptIOError` before any
 password is read. Redirected password input uses the ordinary line reader.
 
+If a line contains malformed UTF-8 or disallowed controls, its pending Enter
+produces a generic validation error and a fresh attempt. Rejected lines never
+submit an empty/default value or a partially accepted prefix. Selection prompts
+normalize tab separators to spaces before validating the line; text, password,
+and confirmation prompts reject tabs in line input.
+
 Fallback is the default: `defaultPromptSessionOptions()` sets
 `requireTerminal` to `false`. Internal callers can set it to `true` when a
 strict terminal requirement is appropriate; redirected streams then raise

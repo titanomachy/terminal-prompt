@@ -32,6 +32,10 @@ partially copied, or otherwise derived secrets. If a password validator raises
 a catchable exception, TerminalPrompt discards its message and parent chain and
 raises a generic `PromptError` after restoring the display and terminal.
 
+Malformed redirected password lines retry with a generic message that contains
+none of the rejected input. They are never accepted as empty passwords and are
+not passed to application validators.
+
 Cancellation, EOF, and I/O failures do not render the partially entered
 password. TerminalScreen owns raw-mode and cursor restoration; TerminalPrompt
 closes its display and session from `finally` on every library-controlled exit

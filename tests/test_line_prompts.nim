@@ -68,6 +68,43 @@ suite "text prompt":
     check scripted.output.contains("Use at least two characters")
     check '\e' notin scripted.output
 
+  test "malformed lines cannot validate partial text or activate a default":
+    for malformed in ["Ada\tLovelace", "bad\xff", "bad\e[31m"]:
+      var validated: seq[string]
+      let validator: Validator[string] = proc(value: string): string =
+        validated.add value
+        ""
+      let scripted = newScriptedSession(@[
+        text("prefix"), text(malformed), enter(), text("valid"), enter()
+      ])
+      let response = runTextPrompt(PromptSession(scripted),
+        initTextPromptOptions("Name", defaultValue = some("DEFAULT"),
+          validator = validator))
+      check response.value == "valid"
+      check validated == @["valid"]
+      check "! Enter valid UTF-8 without control characters." in scripted.output
+      check scripted.closeCount == 1
+
+  test "malformed line retries preserve cancellation EOF and validator failures":
+    for ending in [cancel(), endInput()]:
+      let scripted = newScriptedSession(@[text("bad\xff"), enter(), ending])
+      let response = runTextPrompt(PromptSession(scripted),
+        initTextPromptOptions("Name", defaultValue = some("DEFAULT")))
+      if ending.kind == inputEndOfInput:
+        check response.isEndOfInput
+      else:
+        check response.isCancelled
+      check scripted.closeCount == 1
+    let failing = newScriptedSession(@[
+      text("bad\xff"), enter(), text("valid"), enter()
+    ])
+    let validator: Validator[string] = proc(value: string): string =
+      raise newException(ValueError, "validator failed")
+    expect ValueError:
+      discard runTextPrompt(PromptSession(failing),
+        initTextPromptOptions("Name", validator = validator))
+    check failing.closeCount == 1
+
   test "cancel and EOF remain distinct and close the session":
     let cancelledSession = newScriptedSession(@[text("ignored"), cancel()])
     check runTextPrompt(PromptSession(cancelledSession),
@@ -91,6 +128,23 @@ suite "text prompt":
       initTextPromptOptions("Name")).value == "a"
 
 suite "password prompt":
+  test "malformed password lines retry without exposing or validating input":
+    var validated: seq[string]
+    let validator: Validator[string] = proc(value: string): string =
+      validated.add value
+      ""
+    let scripted = newScriptedSession(@[
+      text("rejected-secret\t"), enter(), text("accepted-secret"), enter()
+    ])
+    let response = runPasswordPrompt(PromptSession(scripted),
+      initPasswordPromptOptions("Password", validator = validator))
+    check response.value == "accepted-secret"
+    check validated == @["accepted-secret"]
+    check "secret" notin scripted.output
+    check "! Enter valid UTF-8 without control characters." in scripted.output
+    check "accepted-secret" notin $response
+    check scripted.closeCount == 1
+
   test "interactive output contains masks but never the answer":
     let secret = "s界cret"
     var events: seq[PromptInputEvent]
@@ -158,6 +212,15 @@ suite "password prompt":
     check "unfinished" notin eofSession.output
 
 suite "confirmation prompt":
+  test "a rejected negative line cannot activate an affirmative default":
+    let scripted = newScriptedSession(@[
+      text("n\t"), enter(), text("n"), enter()
+    ])
+    check not runConfirmPrompt(PromptSession(scripted),
+      initConfirmPromptOptions("Proceed", defaultValue = true)).value
+    check "! Enter valid UTF-8 without control characters." in scripted.output
+    check scripted.closeCount == 1
+
   test "Enter selects the configured boolean default":
     let yesDefault = newScriptedSession(@[enter()])
     check runConfirmPrompt(PromptSession(yesDefault),
@@ -220,6 +283,32 @@ suite "confirmation prompt":
       initConfirmPromptOptions("Continue")).isEndOfInput
 
 suite "configuration and public line-mode integration":
+  test "public prompts retry malformed whole lines and preserve subsequent input":
+    let inputTemp = createTempFile("terminal_prompt_rejected_input_", ".txt")
+    let outputTemp = createTempFile("terminal_prompt_rejected_output_", ".txt")
+    defer:
+      inputTemp.cfile.close()
+      outputTemp.cfile.close()
+      removeFile(inputTemp.path)
+      removeFile(outputTemp.path)
+    inputTemp.cfile.write(
+      "n\t\nn\nAda\tLovelace\nAda\nbad-secret\xff\nvalid-secret\nlater\n")
+    inputTemp.cfile.setFilePos(0)
+    let runtime = defaultRuntimeOptions(inputTemp.cfile, outputTemp.cfile)
+    check not askConfirm(initConfirmPromptOptions("Proceed",
+      defaultValue = true,
+      runtime = runtime)).value
+    check askText(initTextPromptOptions("Name", defaultValue = some("DEFAULT"),
+      runtime = runtime)).value == "Ada"
+    check askPassword(initPasswordPromptOptions("Password",
+      runtime = runtime)).value == "valid-secret"
+    check inputTemp.cfile.readLine() == "later"
+    outputTemp.cfile.flushFile()
+    let output = readFile(outputTemp.path)
+    check output.count("! Enter valid UTF-8 without control characters.") == 3
+    check "secret" notin output
+    check '\e' notin output
+
   test "invalid masks and confirmation labels fail before interaction":
     let maskSession = newScriptedSession()
     expect PromptConfigurationError:

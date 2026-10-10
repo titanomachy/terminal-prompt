@@ -4,7 +4,7 @@ import std/[options, parseutils, strutils]
 
 import terminal_style
 
-import ./[display, editor, input_engine, io, keys, render, session, types]
+import ./[display, editor, input_engine, io, keys, line_prompt, render, session, types]
 
 type
   SelectionPromptSpec* = object
@@ -235,10 +235,9 @@ proc insertLineKey(lineEditor: var LineEditor; key: PromptKeyEvent): bool =
   of keyText, keySpace:
     if key.text.len == 0:
       return false
-    try:
-      lineEditor.insert(key.text)
-    except ValueError:
-      false
+    # Tabs are documented separators; normalize them before the control-free
+    # editor sees a complete redirected line. Other invalid input must retry.
+    lineEditor.insert(key.text.replace('\t', ' '))
   else:
     false
 
@@ -308,6 +307,7 @@ proc runSelectionPrompt*[T](session: PromptSession;
         viewportStart = 0
         validationError = ""
         lineEditor = initLineEditor()
+        rejectedInput = false
       display.redraw(renderer.renderSelectionFrame(choices, selected, focus,
         spec, promptMode, size, viewportStart, validationError, lineEditor))
 
@@ -316,13 +316,23 @@ proc runSelectionPrompt*[T](session: PromptSession;
         var
           redraw = false
           lineRedraw = false
+        template insertInput(key: PromptKeyEvent) =
+          try:
+            redraw = lineEditor.insertLineKey(key)
+          except ValueError:
+            rejectedInput = true
         case event.kind
         of engineAction:
           case event.action
           of actionCancel:
             return cancelled[seq[int]]()
           of actionSubmit:
-            if promptMode == promptLineMode and not spec.multiple:
+            if rejectedInput:
+              validationError = InvalidLineInputMessage
+              lineEditor.setValue("")
+              rejectedInput = false
+              lineRedraw = true
+            elif promptMode == promptLineMode and not spec.multiple:
               if not lineEditor.isEmpty:
                 let parsed = lineEditor.value.parseOneIndex(choices.len)
                 if not parsed.valid:
@@ -384,7 +394,7 @@ proc runSelectionPrompt*[T](session: PromptSession;
             focus = moved
           of actionToggle:
             if promptMode == promptLineMode:
-              redraw = lineEditor.insertLineKey(event.actionKey)
+              insertInput(event.actionKey)
             elif spec.multiple and focus >= 0:
               selected[focus] = not selected[focus]
               redraw = true
@@ -394,13 +404,13 @@ proc runSelectionPrompt*[T](session: PromptSession;
                 selected[index] = not item.disabled
               redraw = true
             elif promptMode == promptLineMode:
-              redraw = lineEditor.insertLineKey(event.actionKey)
+              insertInput(event.actionKey)
           of actionClearSelection:
             if spec.multiple:
               selected = newSeq[bool](choices.len)
               redraw = true
             elif promptMode == promptLineMode:
-              redraw = lineEditor.insertLineKey(event.actionKey)
+              insertInput(event.actionKey)
           of actionDeleteBackward:
             if promptMode == promptLineMode:
               redraw = lineEditor.deleteBackward()
@@ -417,7 +427,7 @@ proc runSelectionPrompt*[T](session: PromptSession;
           if promptMode == promptLineMode:
             if event.key.key == keyCtrlD and lineEditor.isEmpty:
               return endOfInput[seq[int]]()
-            redraw = lineEditor.insertLineKey(event.key)
+            insertInput(event.key)
         of engineResize:
           size = some(event.size)
           display.updateSize(event.size)

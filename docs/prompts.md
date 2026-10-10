@@ -18,6 +18,13 @@ renders an error and starts a fresh line; interactive mode retains invalid text
 so it can be corrected in place. Neither mode treats cancellation or EOF as an
 empty answer.
 
+Malformed UTF-8 or disallowed control characters reject the whole line with a
+generic validation message. They never submit partial text or activate a
+default, and text/password validators only receive successfully decoded input.
+Text, password, and confirmation line input cannot contain tabs; selection
+input accepts tabs as whitespace and multi-select separators. A retry consumes
+the next line only when needed, leaving subsequent prompts' input untouched.
+
 All prompt-owned displays and terminal sessions close from `finally`, including
 after validators or I/O backends raise.
 
